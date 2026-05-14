@@ -1,0 +1,112 @@
+<%- include('partials/header') %>
+
+<section class="auth-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-7">
+                <div class="verify-card glass-card text-center">
+
+                    <% if (status === 'success') { %>
+                        <!-- ✅ SUCCESS -->
+                        <div class="verify-icon success-icon">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <h1 class="verify-title">Email Verified!</h1>
+                        <p class="verify-subtitle">
+                            Your account has been activated. You're now logged in and ready to build surveys!
+                        </p>
+                        <a href="/dashboard" class="btn btn-primary-glow w-100 mt-2">
+                            <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
+                        </a>
+
+                    <% } else if (status === 'invalid') { %>
+                        <!-- ❌ INVALID TOKEN -->
+                        <div class="verify-icon error-icon">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <h1 class="verify-title">Invalid Link</h1>
+                        <p class="verify-subtitle">
+                            This verification link is invalid or has already been used.
+                            Please register again or contact support.
+                        </p>
+                        <a href="/auth/register" class="btn btn-primary-glow w-100 mt-2">
+                            <i class="bi bi-person-plus-fill me-2"></i>Register Again
+                        </a>
+                        <a href="/auth/login" class="btn btn-outline-glow w-100 mt-2">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Back to Login
+                        </a>
+
+                    <% } else { %>
+                        <!-- ⚠️ ERROR -->
+                        <div class="verify-icon warning-icon">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </div>
+                        <h1 class="verify-title">Something Went Wrong</h1>
+                        <p class="verify-subtitle">
+                            We couldn't process your verification. Please try again later.
+                        </p>
+                        <a href="/auth/login" class="btn btn-outline-glow w-100 mt-2">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Back to Login
+                        </a>
+                    <% } %>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<%- include('partials/footer') %>
+
+<style>
+.verify-card {
+    padding: 50px 40px;
+    margin: 80px auto;
+    border-radius: 20px;
+}
+
+.verify-icon {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+    margin: 0 auto 28px;
+    animation: pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.success-icon {
+    background: linear-gradient(135deg, rgba(72,199,142,0.2), rgba(40,167,69,0.2));
+    color: #48c78e;
+    border: 2px solid rgba(72,199,142,0.4);
+}
+.error-icon {
+    background: linear-gradient(135deg, rgba(234,75,75,0.2), rgba(200,40,40,0.2));
+    color: #ea4b4b;
+    border: 2px solid rgba(234,75,75,0.4);
+}
+.warning-icon {
+    background: linear-gradient(135deg, rgba(255,193,7,0.2), rgba(200,150,0,0.2));
+    color: #ffc107;
+    border: 2px solid rgba(255,193,7,0.4);
+}
+
+@keyframes pop-in {
+    0%   { transform: scale(0.4); opacity: 0; }
+    100% { transform: scale(1);   opacity: 1; }
+}
+
+.verify-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 12px;
+}
+.verify-subtitle {
+    color: #a0a0c0;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+</style>

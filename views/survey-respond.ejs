@@ -1,0 +1,380 @@
+<%- include('partials/header') %>
+
+<!-- Survey Theme CSS Variables — Module 2 -->
+<style>
+  <% const themeMap = {
+    default: { a1:'#667eea', a2:'#764ba2' },
+    ocean:   { a1:'#0093E9', a2:'#80D0C7' },
+    sunset:  { a1:'#f093fb', a2:'#f5576c' },
+    forest:  { a1:'#11998e', a2:'#38ef7d' },
+    night:   { a1:'#e0c3fc', a2:'#8ec5fc' },
+    rose:    { a1:'#f953c6', a2:'#b91d73' }
+  };
+  const themeKey = survey.theme || 'default';
+  const t = themeMap[themeKey] || themeMap.default; %>
+
+  /* Force theme gradient across all accent elements */
+  .btn-primary-glow,
+  .btn-primary-glow:hover,
+  button.btn-primary-glow {
+    background: linear-gradient(135deg, <%= t.a1 %>, <%= t.a2 %>) !important;
+    border-color: transparent !important;
+  }
+  .question-number {
+    background: linear-gradient(135deg, <%= t.a1 %>, <%= t.a2 %>) !important;
+  }
+  .gradient-text {
+    background: linear-gradient(135deg, <%= t.a1 %>, <%= t.a2 %>) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+  }
+  .thank-you-icon i {
+    background: linear-gradient(135deg, <%= t.a1 %>, <%= t.a2 %>);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .rating-star-input.active,
+  .rating-star-input.hover { color: <%= t.a1 %> !important; }
+  input[type="radio"]:checked + label,
+  .form-check-input:checked { accent-color: <%= t.a1 %> !important; }
+</style>
+
+    <section class="respond-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <% if (submitted) { %>
+                        <!-- Thank You Message -->
+                        <div class="glass-card p-5 text-center thank-you-card">
+                            <div class="thank-you-icon mb-3">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </div>
+                            <h1 class="gradient-text mb-3">Thank You!</h1>
+                            <p class="text-muted mb-4">Your response to "<strong>
+                                    <%= survey.title %>
+                                </strong>" has been recorded successfully.</p>
+                            <div class="mt-4">
+                                <p class="text-muted mb-2">Share this survey:</p>
+                                <div class="d-flex justify-content-center gap-2">
+                                    <button class="btn btn-sm btn-outline-glow" onclick="copyShareLink('<%= survey.share_link %>')" title="Copy Link"><i class="bi bi-link-45deg"></i></button>
+                                    <button class="btn btn-sm btn-outline-glow text-success" onclick="shareSocial('<%= survey.share_link %>', 'whatsapp')" title="WhatsApp"><i class="bi bi-whatsapp"></i></button>
+                                    <button class="btn btn-sm btn-outline-glow text-primary" onclick="shareSocial('<%= survey.share_link %>', 'facebook')" title="Facebook"><i class="bi bi-facebook"></i></button>
+                                    <button class="btn btn-sm btn-outline-glow text-danger" onclick="shareSocial('<%= survey.share_link %>', 'email')" title="Email"><i class="bi bi-envelope"></i></button>
+                                    <button class="btn btn-sm btn-outline-glow text-warning" onclick="shareSocial('<%= survey.share_link %>', 'instagram')" title="Instagram"><i class="bi bi-instagram"></i></button>
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <a href="/" class="btn btn-outline-glow">
+                                    <i class="bi bi-house-fill me-2"></i>Go to Home
+                                </a>
+                            </div>
+                        </div>
+                        <% } else { %>
+                            <!-- Survey Form -->
+                            <div class="respond-header mb-4">
+                                <h1 class="page-title">
+                                    <%= survey.title %>
+                                </h1>
+                                <% if (survey.description) { %>
+                                    <p class="page-subtitle">
+                                        <%= survey.description %>
+                                    </p>
+                                    <% } %>
+                            </div>
+
+                            <form action="/s/<%= survey.share_link %>/submit" method="POST" id="responseForm">
+                                <div class="glass-card p-4 mb-4">
+                                    <div class="form-floating-custom mb-3">
+                                        <label for="respondent_name"><i class="bi bi-person-fill me-2"></i>Your Name
+                                            (optional)</label>
+                                        <input type="text" class="form-control" id="respondent_name"
+                                            name="respondent_name" placeholder="Enter your name">
+                                    </div>
+                                </div>
+
+                                <% questions.forEach(function(q, index) { %>
+                                    <div class="glass-card p-4 mb-4 question-respond-card">
+                                        <label class="respond-question-label">
+                                            <span class="question-number">
+                                                <%= index + 1 %>
+                                            </span>
+                                            <%= q.question_text %>
+                                                <% if (q.is_required) { %><span class="text-danger ms-1">*</span>
+                                                    <% } %>
+                                        </label>
+
+                                        <div class="respond-question-body mt-3">
+                                            <% if (q.question_type==='short' ) { %>
+                                                <input type="text" class="form-control" name="question_<%= q.id %>"
+                                                    placeholder="Your answer" <%=q.is_required ? 'required' : '' %>>
+                                                <% } else if (q.question_type==='long' ) { %>
+                                                    <textarea class="form-control" name="question_<%= q.id %>" rows="4"
+                                                        placeholder="Your detailed answer" <%=q.is_required ? 'required'
+                                                        : '' %>></textarea>
+                                                    <% } else if (q.question_type==='mcq' ) { %>
+                                                        <% if (q.options) { %>
+                                                            <% q.options.forEach(function(opt, optIndex) { %>
+                                                                <div class="form-check respond-option mb-2">
+                                                                    <input class="form-check-input" type="radio"
+                                                                        name="question_<%= q.id %>"
+                                                                        id="q<%= q.id %>_opt<%= optIndex %>"
+                                                                        value="<%= opt %>" <%=q.is_required &&
+                                                                        optIndex===0 ? '' : '' %>>
+                                                                    <label class="form-check-label"
+                                                                        for="q<%= q.id %>_opt<%= optIndex %>">
+                                                                        <%= opt %>
+                                                                    </label>
+                                                                </div>
+                                                                <% }); %>
+                                                                    <% } %>
+                                                                        <% } else if (q.question_type==='checkbox' ) {
+                                                                            %>
+                                                                            <% if (q.options) { %>
+                                                                                <% q.options.forEach(function(opt,
+                                                                                    optIndex) { %>
+                                                                                    <div
+                                                                                        class="form-check respond-option mb-2">
+                                                                                        <input class="form-check-input"
+                                                                                            type="checkbox"
+                                                                                            name="question_<%= q.id %>"
+                                                                                            id="q<%= q.id %>_chk<%= optIndex %>"
+                                                                                            value="<%= opt %>">
+                                                                                        <label class="form-check-label"
+                                                                                            for="q<%= q.id %>_chk<%= optIndex %>">
+                                                                                            <%= opt %>
+                                                                                        </label>
+                                                                                    </div>
+                                                                                    <% }); %>
+                                                                                        <% } %>
+                                                                                            <% } else if
+                                                                                                (q.question_type==='rating'
+                                                                                                ) { %>
+                                                                                                <div class="rating-input"
+                                                                                                    id="rating_<%= q.id %>">
+                                                                                                    <% for (let i=1; i
+                                                                                                        <=5; i++) { %>
+                                                                                                        <label
+                                                                                                            class="rating-label"
+                                                                                                            for="q<%= q.id %>_r<%= i %>">
+                                                                                                            <input
+                                                                                                                type="radio"
+                                                                                                                name="question_<%= q.id %>"
+                                                                                                                id="q<%= q.id %>_r<%= i %>"
+                                                                                                                value="<%= i %>"
+                                                                                                                class="d-none">
+                                                                                                            <i class="bi bi-star rating-star-input"
+                                                                                                                data-value="<%= i %>"></i>
+                                                                                                        </label>
+                                                                                                        <% } %>
+                                                                                                </div>
+                                                                                                <% } else if (q.question_type==='dropdown') { %>
+                                                                                                    <select class="form-select custom-select-glow" name="question_<%= q.id %>" style="background: rgba(0,0,0,0.3); color: #fff; border: 1px solid rgba(255,255,255,0.12);" <%= q.is_required ? 'required' : '' %>>
+                                                                                                        <option value="" style="color: #666;">-- Select an option --</option>
+                                                                                                        <% if (q.options) { %>
+                                                                                                            <% q.options.forEach(function(opt) { %>
+                                                                                                                <option value="<%= opt %>" style="background: #1a1a2e; color: #fff;"><%= opt %></option>
+                                                                                                            <% }); %>
+                                                                                                        <% } %>
+                                                                                                    </select>
+                                                                                                <% } else if (q.question_type==='yesno') { %>
+                                                                                                    <div class="d-flex gap-4">
+                                                                                                        <div class="form-check respond-option">
+                                                                                                            <input class="form-check-input" type="radio" name="question_<%= q.id %>" id="q<%= q.id %>_yes" value="Yes" <%= q.is_required ? 'required' : '' %>>
+                                                                                                            <label class="form-check-label" for="q<%= q.id %>_yes">Yes</label>
+                                                                                                        </div>
+                                                                                                        <div class="form-check respond-option">
+                                                                                                            <input class="form-check-input" type="radio" name="question_<%= q.id %>" id="q<%= q.id %>_no" value="No" <%= q.is_required ? 'required' : '' %>>
+                                                                                                            <label class="form-check-label" for="q<%= q.id %>_no">No</label>
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                <% } else if (q.question_type==='datetime') { %>
+                                                                                                    <input type="datetime-local" class="form-control" name="question_<%= q.id %>" <%= q.is_required ? 'required' : '' %>>
+                                                                                                <% } %>
+                                        </div>
+                                    </div>
+                                    <% }); %>
+
+                                        <div class="text-center">
+                                            <div id="validation-error" class="alert alert-danger glass-alert mb-3 d-none">
+                                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                                <span id="validation-error-msg">Please answer all required questions before submitting.</span>
+                                            </div>
+                                            <button type="button" class="btn btn-primary-glow btn-lg" id="submitBtn" onclick="validateAndSubmit()">
+                                                <i class="bi bi-send-fill me-2"></i>Submit Response
+                                            </button>
+                                        </div>
+                                    </form>
+                            <% } %>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // ====== FORM VALIDATION ======
+        function validateAndSubmit() {
+            const form = document.getElementById('responseForm');
+            const errorBox = document.getElementById('validation-error');
+            const errorMsg = document.getElementById('validation-error-msg');
+            let hasAnyAnswer = false;
+            let missingRequired = [];
+
+            // Get all question blocks
+            const questionCards = form.querySelectorAll('.question-respond-card');
+
+            questionCards.forEach((card, index) => {
+                const questionNum = index + 1;
+                const isRequired = card.querySelector('.text-danger') !== null;
+
+                // Check all possible input types
+                const textInput = card.querySelector('input[type="text"], input[type="datetime-local"], textarea, select');
+                const radioInputs = card.querySelectorAll('input[type="radio"]');
+                const checkboxInputs = card.querySelectorAll('input[type="checkbox"]');
+
+                let answered = false;
+
+                if (textInput) {
+                    if (textInput.value.trim() !== '') {
+                        answered = true;
+                        hasAnyAnswer = true;
+                    }
+                } else if (radioInputs.length > 0) {
+                    const checked = card.querySelector('input[type="radio"]:checked');
+                    if (checked) {
+                        answered = true;
+                        hasAnyAnswer = true;
+                    }
+                } else if (checkboxInputs.length > 0) {
+                    const checked = card.querySelector('input[type="checkbox"]:checked');
+                    if (checked) {
+                        answered = true;
+                        hasAnyAnswer = true;
+                    }
+                }
+
+                // Highlight required unanswered questions
+                if (isRequired && !answered) {
+                    missingRequired.push(questionNum);
+                    card.style.borderColor = 'rgba(244, 63, 94, 0.6)';
+                    card.style.boxShadow = '0 0 0 2px rgba(244, 63, 94, 0.15)';
+                } else {
+                    card.style.borderColor = '';
+                    card.style.boxShadow = '';
+                }
+            });
+
+            // Block if no answers at all
+            if (!hasAnyAnswer) {
+                errorMsg.textContent = 'Please answer at least one question before submitting.';
+                errorBox.classList.remove('d-none');
+                errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            // Block if required questions unanswered
+            if (missingRequired.length > 0) {
+                const nums = missingRequired.join(', ');
+                errorMsg.textContent = `Question${missingRequired.length > 1 ? 's' : ''} ${nums} ${missingRequired.length > 1 ? 'are' : 'is'} required. Please answer before submitting.`;
+                errorBox.classList.remove('d-none');
+                // Scroll to the first missing question
+                const firstMissing = form.querySelectorAll('.question-respond-card')[missingRequired[0] - 1];
+                firstMissing.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            // All good — hide error and submit
+            errorBox.classList.add('d-none');
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
+            form.submit();
+        }
+
+        // Clear error highlight when user starts answering
+        document.addEventListener('input', function(e) {
+            const card = e.target.closest('.question-respond-card');
+            if (card) {
+                card.style.borderColor = '';
+                card.style.boxShadow = '';
+            }
+            const errorBox = document.getElementById('validation-error');
+            if (errorBox) errorBox.classList.add('d-none');
+        });
+        document.addEventListener('change', function(e) {
+            const card = e.target.closest('.question-respond-card');
+            if (card) {
+                card.style.borderColor = '';
+                card.style.boxShadow = '';
+            }
+            const errorBox = document.getElementById('validation-error');
+            if (errorBox) errorBox.classList.add('d-none');
+        });
+        // ====== END VALIDATION ======
+
+        // Rating star interaction
+        document.querySelectorAll('.rating-input').forEach(container => {
+            const stars = container.querySelectorAll('.rating-star-input');
+            stars.forEach(star => {
+                star.addEventListener('click', function () {
+                    const val = parseInt(this.dataset.value);
+                    stars.forEach(s => {
+                        const sv = parseInt(s.dataset.value);
+                        s.classList.toggle('bi-star-fill', sv <= val);
+                        s.classList.toggle('bi-star', sv > val);
+                        s.classList.toggle('active', sv <= val);
+                    });
+                });
+                star.addEventListener('mouseenter', function () {
+                    const val = parseInt(this.dataset.value);
+                    stars.forEach(s => {
+                        const sv = parseInt(s.dataset.value);
+                        s.classList.toggle('hover', sv <= val);
+                    });
+                });
+                star.addEventListener('mouseleave', function () {
+                    stars.forEach(s => s.classList.remove('hover'));
+                });
+            });
+        });
+
+        function copyShareLink(shareLink) {
+            const url = window.location.origin + '/s/' + shareLink;
+            navigator.clipboard.writeText(url).then(() => {
+                const toast = document.createElement('div');
+                toast.className = 'copy-toast';
+                toast.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Link copied!';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 2000);
+            }).catch(() => prompt('Copy this link:', url));
+        }
+
+        function shareSocial(shareLink, platform) {
+            const url = encodeURIComponent(window.location.origin + '/s/' + shareLink);
+            const text = encodeURIComponent('Please fill out my survey: ');
+            
+            let shareUrl = '';
+            
+            switch(platform) {
+                case 'whatsapp':
+                    shareUrl = `https://api.whatsapp.com/send?text=${text}${url}`;
+                    window.open(shareUrl, '_blank');
+                    break;
+                case 'facebook':
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
+                    window.open(shareUrl, '_blank');
+                    break;
+                case 'email':
+                    shareUrl = `https://mail.google.com/mail/?view=cm&fs=1&su=Please fill out my survey&body=${text}${url}`;
+                    window.open(shareUrl, '_blank');
+                    break;
+                case 'instagram':
+                    copyShareLink(shareLink);
+                    alert("Link copied! Open Instagram and paste the link in your bio, story, or direct message.");
+                    break;
+            }
+        }
+    </script>
+
+    <%- include('partials/footer') %>

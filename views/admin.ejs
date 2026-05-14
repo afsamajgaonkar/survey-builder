@@ -1,0 +1,389 @@
+<%- include('partials/header') %>
+
+<section class="admin-section">
+    <div class="container-fluid px-4">
+        
+        <!-- ── Page Header ────────────────────────────────────────────────── -->
+        <div class="admin-page-header mb-4 mt-2">
+            <div>
+                <h1 class="page-title mb-0">Admin Dashboard</h1>
+                <p class="admin-subtitle text-muted mt-1">System-wide overview and management</p>
+            </div>
+        </div>
+
+        <!-- ── Stats Bar ─────────────────────────────────────────────────── -->
+        <div class="stats-bar mb-4">
+            <div class="stat-pill" data-animate>
+                <div class="stat-pill-icon"><i class="bi bi-people-fill"></i></div>
+                <div>
+                    <div class="stat-pill-num" data-target="<%= totalUsers %>">0</div>
+                    <div class="stat-pill-label">Total Users</div>
+                </div>
+            </div>
+            <div class="stat-pill" data-animate>
+                <div class="stat-pill-icon" style="background:rgba(72,199,142,0.15);color:#48c78e;"><i class="bi bi-clipboard2-data-fill"></i></div>
+                <div>
+                    <div class="stat-pill-num" data-target="<%= totalSurveys %>">0</div>
+                    <div class="stat-pill-label">Total Surveys</div>
+                </div>
+            </div>
+            <div class="stat-pill" data-animate>
+                <div class="stat-pill-icon" style="background:rgba(255,193,7,0.15);color:#ffc107;"><i class="bi bi-chat-dots-fill"></i></div>
+                <div>
+                    <div class="stat-pill-num" data-target="<%= totalResponses %>">0</div>
+                    <div class="stat-pill-label">Total Responses</div>
+                </div>
+            </div>
+            <div class="stat-pill" data-animate>
+                <div class="stat-pill-icon" style="background:rgba(244,63,94,0.15);color:#f43f5e;"><i class="bi bi-person-badge-fill"></i></div>
+                <div>
+                    <div class="stat-pill-num" data-target="<%= adminCount %>">0</div>
+                    <div class="stat-pill-label">Admins</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── All Users Table ────────────────────────────────────────────── -->
+        <div class="resp-table-wrap glass-card mb-5" data-animate>
+            <div class="resp-table-toolbar">
+                <div class="resp-table-info">
+                    <i class="bi bi-people-fill me-2" style="color:#667eea;"></i><span>All Users</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="resp-table">
+                    <thead>
+                        <tr>
+                            <th class="th-num">ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Joined</th>
+                            <th class="th-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% allUsers.forEach(function(u, idx) { %>
+                        <tr class="resp-row" style="animation-delay: <%= idx * 40 %>ms">
+                            <td class="td-num">
+                                <span class="row-num"><%= u.id %></span>
+                            </td>
+                            <td>
+                                <a href="/admin/users/<%= u.id %>" class="text-decoration-none fw-bold hover-glow" style="color: #c5c5e8;">
+                                    <%= u.username %>
+                                </a>
+                            </td>
+                            <td style="color:#a0a0c0;"><%= u.email %></td>
+                            <td>
+                                <span class="custom-badge <%= u.role === 'admin' ? 'badge-admin' : 'badge-user' %>">
+                                    <%= u.role %>
+                                </span>
+                            </td>
+                            <td style="color:#a0a0c0;"><%= new Date(u.created_at).toLocaleDateString() %></td>
+                            <td class="td-actions">
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <% if (u.id !== user.id) { %>
+                                        <form action="/admin/users/<%= u.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to permanently delete user <%= u.username %>? All their surveys and responses will also be deleted. This cannot be undone.');">
+                                            <button type="submit" class="action-btn delete-btn" title="Delete User"><i class="bi bi-trash3"></i></button>
+                                        </form>
+                                    <% } else { %>
+                                        <span class="custom-badge badge-current">Current User</span>
+                                    <% } %>
+                                </div>
+                            </td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ── All Surveys Table ──────────────────────────────────────────── -->
+        <div class="resp-table-wrap glass-card mb-5" data-animate>
+            <div class="resp-table-toolbar">
+                <div class="resp-table-info">
+                    <i class="bi bi-clipboard2-data-fill me-2" style="color:#48c78e;"></i><span>All Surveys</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="resp-table">
+                    <thead>
+                        <tr>
+                            <th class="th-num">ID</th>
+                            <th>Title</th>
+                            <th>Author</th>
+                            <th>Responses</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th class="th-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% allSurveys.forEach(function(s, idx) { %>
+                        <tr class="resp-row" style="animation-delay: <%= idx * 40 %>ms">
+                            <td class="td-num">
+                                <span class="row-num"><%= s.id %></span>
+                            </td>
+                            <td style="color:#c5c5e8; font-weight:500;"><%= s.title %></td>
+                            <td style="color:#a0a0c0;"><%= s.author %></td>
+                            <td style="color:#a0a0c0;"><%= s.response_count %></td>
+                            <td>
+                                <span class="custom-badge <%= s.is_active ? 'badge-active' : 'badge-inactive' %>">
+                                    <%= s.is_active ? 'Active' : 'Inactive' %>
+                                </span>
+                            </td>
+                            <td style="color:#a0a0c0;"><%= new Date(s.created_at).toLocaleDateString() %></td>
+                            <td class="td-actions">
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <a href="/surveys/<%= s.id %>/preview" class="action-btn view-btn" title="Preview Survey"><i class="bi bi-eye"></i></a>
+                                    <a href="/surveys/<%= s.id %>/responses" class="action-btn info-btn" title="View Responses"><i class="bi bi-bar-chart-fill"></i></a>
+                                    <form action="/surveys/<%= s.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to permanently delete this survey?');">
+                                        <button type="submit" class="action-btn delete-btn" title="Delete Survey"><i class="bi bi-trash3"></i></button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ── Recent Activity Table ──────────────────────────────────────── -->
+        <div class="resp-table-wrap glass-card mb-5" data-animate>
+            <div class="resp-table-toolbar">
+                <div class="resp-table-info">
+                    <i class="bi bi-activity me-2" style="color:#ffc107;"></i><span>Recent Activity</span>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="resp-table">
+                    <thead>
+                        <tr>
+                            <th style="min-width: 180px;">Timestamp</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th class="th-actions">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (typeof recentActivities !== 'undefined' && recentActivities.length > 0) { %>
+                            <% recentActivities.forEach(function(activity, idx) { %>
+                                <tr class="resp-row" style="animation-delay: <%= idx * 40 %>ms">
+                                    <td style="color:#a0a0c0;"><%= new Date(activity.created_at).toLocaleString() %></td>
+                                    <td style="color:#c5c5e8; font-weight:600;"><%= activity.username %></td>
+                                    <td style="color:#a0a0c0;"><%= activity.action %></td>
+                                    <td class="td-actions">
+                                        <div class="d-flex justify-content-center">
+                                            <form action="/admin/activity/<%= activity.id %>/delete" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this activity?');">
+                                                <button type="submit" class="action-btn delete-btn" title="Delete Activity"><i class="bi bi-trash3"></i></button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        <% } else { %>
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-5" style="border:none;">No recent activities found</td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ── Styles ──────────────────────────────────────────────────────────────── -->
+<style>
+/* Page Header */
+.admin-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.admin-subtitle { font-size: 0.9rem; margin: 0; }
+
+/* Stats Bar */
+.stats-bar {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 14px 20px;
+    flex: 1;
+    min-width: 180px;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s ease, border-color 0.2s, background 0.2s;
+}
+.stat-pill.visible { opacity: 1; transform: translateY(0); }
+.stat-pill:hover { border-color: rgba(102,126,234,0.3); transform: translateY(-2px); background: rgba(255,255,255,0.06); }
+.stat-pill-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: rgba(102,126,234,0.15);
+    color: #667eea;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0;
+}
+.stat-pill-num {
+    font-size: 1.6rem; font-weight: 800; color: #fff;
+    line-height: 1; font-variant-numeric: tabular-nums;
+}
+.stat-pill-label { font-size: 0.75rem; color: #888; margin-top: 2px; }
+
+/* Table Wrapper */
+.resp-table-wrap {
+    border-radius: 16px;
+    overflow: hidden;
+    padding: 0;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.resp-table-wrap.visible { opacity: 1; transform: translateY(0); }
+
+.resp-table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.resp-table-info { font-size: 1rem; color: #a0a0c0; }
+.resp-table-info span { color: #fff; font-weight: 700; }
+
+/* Table */
+.resp-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+}
+.resp-table thead tr {
+    background: rgba(102,126,234,0.06);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.resp-table th {
+    padding: 14px 16px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #a0a0c0;
+    white-space: nowrap;
+}
+.th-num { width: 60px; text-align: center; }
+.th-actions { width: 120px; text-align: center; }
+
+/* Table Rows */
+.resp-row {
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    opacity: 0;
+    animation: rowSlideIn 0.4s ease forwards;
+    transition: background 0.15s;
+}
+.resp-row:last-child { border-bottom: none; }
+.resp-row:hover { background: rgba(102,126,234,0.06); }
+@keyframes rowSlideIn {
+    from { opacity: 0; transform: translateX(-12px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+.resp-table td { padding: 14px 16px; vertical-align: middle; }
+
+/* Row Number */
+.td-num { text-align: center; }
+.row-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px; height: 28px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #a0a0c0;
+}
+
+/* Actions */
+.td-actions { text-align: center; }
+.action-btn {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+.delete-btn {
+    background: rgba(244,63,94,0.1);
+    color: #f43f5e;
+    border: 1px solid rgba(244,63,94,0.2);
+}
+.delete-btn:hover { background: rgba(244,63,94,0.25); transform: scale(1.1); }
+
+.view-btn {
+    background: rgba(72,199,142,0.1);
+    color: #48c78e;
+    border: 1px solid rgba(72,199,142,0.2);
+}
+.view-btn:hover { background: rgba(72,199,142,0.25); transform: scale(1.1); }
+
+.info-btn {
+    background: rgba(102,126,234,0.1);
+    color: #667eea;
+    border: 1px solid rgba(102,126,234,0.2);
+}
+.info-btn:hover { background: rgba(102,126,234,0.25); transform: scale(1.1); }
+
+/* Badges */
+.custom-badge {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+}
+.badge-admin { background: rgba(102,126,234,0.2); color: #667eea; border: 1px solid rgba(102,126,234,0.3); }
+.badge-user { background: rgba(255,255,255,0.08); color: #c5c5e8; border: 1px solid rgba(255,255,255,0.1); }
+.badge-active { background: rgba(72,199,142,0.2); color: #48c78e; border: 1px solid rgba(72,199,142,0.3); }
+.badge-inactive { background: rgba(244,63,94,0.2); color: #f43f5e; border: 1px solid rgba(244,63,94,0.3); }
+.badge-current { background: rgba(100,100,100,0.3); color: #ccc; border: 1px solid rgba(100,100,100,0.4); }
+</style>
+
+<!-- ── Scripts ─────────────────────────────────────────────────────────────── -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Stat pill and table fade-in
+    document.querySelectorAll('[data-animate]').forEach((el, i) => {
+        setTimeout(() => el.classList.add('visible'), i * 120);
+    });
+
+    // Count-up animation
+    document.querySelectorAll('.stat-pill-num[data-target]').forEach(el => {
+        const target = parseInt(el.dataset.target);
+        if (target === 0 || isNaN(target)) { el.textContent = '0'; return; }
+        let start = 0;
+        const duration = 800;
+        const step = Math.ceil(target / (duration / 16));
+        const timer = setInterval(() => {
+            start = Math.min(start + step, target);
+            el.textContent = start;
+            if (start >= target) clearInterval(timer);
+        }, 16);
+    });
+});
+</script>
+
+<%- include('partials/footer') %>

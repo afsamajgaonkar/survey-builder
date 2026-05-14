@@ -1,0 +1,224 @@
+<%- include('partials/header') %>
+
+    <section class="dashboard-section">
+        <div class="container">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header mb-4">
+                <div>
+                    <h1 class="page-title">Dashboard</h1>
+                    <p class="page-subtitle">Welcome back, <strong><%= user.first_name || user.username %></strong>! Manage your surveys here.</p>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="/templates" class="btn btn-outline-glow">
+                        <i class="bi bi-grid-1x2-fill me-2"></i>Templates
+                    </a>
+                    <a href="/surveys/new" class="btn btn-primary-glow">
+                        <i class="bi bi-plus-lg me-2"></i>New Survey
+                    </a>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-6 col-md-3">
+                    <div class="stat-card glass-card">
+                        <div class="stat-card-icon bg-primary-subtle">
+                            <i class="bi bi-clipboard2-data-fill"></i>
+                        </div>
+                        <div class="stat-card-info">
+                            <div class="stat-card-number"><%= totalSurveys %></div>
+                            <div class="stat-card-label">Total Surveys</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card glass-card">
+                        <div class="stat-card-icon bg-success-subtle">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div class="stat-card-info">
+                            <div class="stat-card-number"><%= activeSurveys %></div>
+                            <div class="stat-card-label">Active Surveys</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <div class="stat-card glass-card">
+                        <div class="stat-card-icon bg-info-subtle">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div class="stat-card-info">
+                            <div class="stat-card-number"><%= totalResponses %></div>
+                            <div class="stat-card-label">Total Responses</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <a href="/recycle-bin" class="stat-card glass-card text-decoration-none recycle-bin-card">
+                        <div class="stat-card-icon bg-danger-subtle">
+                            <i class="bi bi-trash3-fill"></i>
+                        </div>
+                        <div class="stat-card-info">
+                            <div class="stat-card-number"><%= recycleBinCount %></div>
+                            <div class="stat-card-label">Recycle Bin</div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Surveys List -->
+            <div class="surveys-section">
+                <h2 class="section-title-sm mb-3">Your Surveys</h2>
+                <% if (surveys.length===0) { %>
+                    <div class="empty-state glass-card text-center py-5">
+                        <div class="empty-icon mb-3">
+                            <i class="bi bi-clipboard2-plus"></i>
+                        </div>
+                        <h3>No Surveys Yet</h3>
+                        <p style="color: var(--text-secondary);">Create your first survey to get started!</p>
+                        <a href="/surveys/new" class="btn btn-primary-glow mt-2">
+                            <i class="bi bi-plus-lg me-2"></i>Create Survey
+                        </a>
+                    </div>
+                    <% } else { %>
+                        <div class="row g-4">
+                            <% surveys.forEach(function(survey) { %>
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="survey-card glass-card">
+                                        <div class="survey-card-header">
+                                            <h3 class="survey-card-title">
+                                                <%= survey.title %>
+                                            </h3>
+                                            <span
+                                                class="badge <%= survey.is_active ? 'badge-active' : 'badge-inactive' %>">
+                                                <%= survey.is_active ? 'Active' : 'Inactive' %>
+                                            </span>
+                                        </div>
+                                        <p class="survey-card-desc">
+                                            <%= survey.description ? survey.description.substring(0, 100) +
+                                                (survey.description.length> 100 ? '...' : '') : 'No description' %>
+                                        </p>
+                                        <div class="survey-card-stats">
+                                            <span><i class="bi bi-people-fill me-1"></i>
+                                                <%= survey.response_count %> responses
+                                            </span>
+                                            <span><i class="bi bi-calendar3 me-1"></i>
+                                                <%= new Date(survey.created_at).toLocaleDateString() %>
+                                            </span>
+                                        </div>
+                                        <div class="survey-card-actions">
+                                            <a href="/surveys/<%= survey.id %>/preview"
+                                                class="btn btn-sm btn-outline-glow" title="Preview">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <a href="/surveys/<%= survey.id %>/responses"
+                                                class="btn btn-sm btn-outline-glow" title="Responses">
+                                                <i class="bi bi-bar-chart-line"></i>
+                                            </a>
+                                            <a href="/surveys/<%= survey.id %>/invitations"
+                                                class="btn btn-sm btn-outline-glow" title="Email Invitations">
+                                                <i class="bi bi-envelope-paper"></i>
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-glow" title="Embed Code"
+                                                onclick="showEmbedModal('<%= survey.share_link %>', '<%= survey.title.replace(/'/g, '') %>')">
+                                                <i class="bi bi-code-slash"></i>
+                                            </button>
+                                            <!-- Share Dropdown -->
+                                            <div class="dropdown d-inline">
+                                                <button class="btn btn-sm btn-outline-glow dropdown-toggle" type="button" data-bs-toggle="dropdown" title="Share Survey">
+                                                    <i class="bi bi-share"></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li><button class="dropdown-item" onclick="copyShareLink('<%= survey.share_link %>')"><i class="bi bi-link-45deg me-2"></i>Copy Link</button></li>
+                                                    <li><button class="dropdown-item" onclick="shareSocial('<%= survey.share_link %>', 'whatsapp')"><i class="bi bi-whatsapp me-2 text-success"></i>WhatsApp</button></li>
+                                                    <li><button class="dropdown-item" onclick="shareSocial('<%= survey.share_link %>', 'facebook')"><i class="bi bi-facebook me-2 text-primary"></i>Facebook</button></li>
+                                                    <li><button class="dropdown-item" onclick="shareSocial('<%= survey.share_link %>', 'email')"><i class="bi bi-envelope me-2 text-danger"></i>Gmail</button></li>
+                                                    <li><button class="dropdown-item" onclick="shareSocial('<%= survey.share_link %>', 'instagram')"><i class="bi bi-instagram me-2 text-warning"></i>Instagram</button></li>
+                                                </ul>
+                                            </div>
+                                            <form action="/surveys/<%= survey.id %>/trash" method="POST"
+                                                class="d-inline"
+                                                onsubmit="return confirm('Move this survey to the Recycle Bin?')">
+                                                <button type="submit" class="btn btn-sm btn-danger-glow" title="Move to Recycle Bin">
+                                                    <i class="bi bi-trash3"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% }); %>
+                        </div>
+                        <% } %>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Embed Code Modal ─────────────────────────────────────────────── -->
+    <div class="modal fade" id="embedModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="background:#1a1a2e;border:1px solid rgba(255,255,255,0.1);border-radius:16px;">
+                <div class="modal-header" style="border-bottom:1px solid rgba(255,255,255,0.08);">
+                    <h5 class="modal-title" style="color:#fff;"><i class="bi bi-code-slash me-2"></i>Embed Survey</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p style="color:#a0a0c0;font-size:0.9rem;">Copy the code below and paste it into any webpage to embed your survey.</p>
+                    <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px;margin-bottom:16px;">
+                        <code id="embedCode" style="color:#c5c5f0;font-size:0.82rem;word-break:break-all;white-space:pre-wrap;"></code>
+                    </div>
+                    <button class="btn btn-primary-glow" onclick="copyEmbedCode()">
+                        <i class="bi bi-clipboard me-2"></i>Copy Code
+                    </button>
+                    <a id="embedPreviewLink" href="#" target="_blank" class="btn btn-outline-glow ms-2">
+                        <i class="bi bi-box-arrow-up-right me-2"></i>Preview Embed
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showEmbedModal(shareLink, title) {
+            const base = window.location.origin;
+            const embedUrl = `${base}/embed/${shareLink}`;
+            const code = `<iframe\n  src="${embedUrl}"\n  width="100%"\n  height="600"\n  frameborder="0"\n  style="border-radius:12px;"\n  title="${title}"\n></iframe>`;
+            document.getElementById('embedCode').textContent = code;
+            document.getElementById('embedPreviewLink').href = embedUrl;
+            new bootstrap.Modal(document.getElementById('embedModal')).show();
+        }
+
+        function copyEmbedCode() {
+            const code = document.getElementById('embedCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = event.target.closest('button');
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Copied!';
+                setTimeout(() => btn.innerHTML = orig, 2000);
+            });
+        }
+
+        function copyShareLink(shareLink) {
+            const url = window.location.origin + '/s/' + shareLink;
+            navigator.clipboard.writeText(url).then(() => {
+                const toast = document.createElement('div');
+                toast.className = 'copy-toast';
+                toast.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Link copied to clipboard!';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 2000);
+            }).catch(() => prompt('Copy this link:', url));
+        }
+
+        function shareSocial(shareLink, platform) {
+            const url = encodeURIComponent(window.location.origin + '/s/' + shareLink);
+            const text = encodeURIComponent('Please fill out my survey: ');
+            switch(platform) {
+                case 'whatsapp': window.open(`https://api.whatsapp.com/send?text=${text}${url}`, '_blank'); break;
+                case 'facebook': window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank'); break;
+                case 'email': window.open(`https://mail.google.com/mail/?view=cm&fs=1&su=Please fill out my survey&body=${text}${url}`, '_blank'); break;
+                case 'instagram': copyShareLink(shareLink); alert("Link copied! Open Instagram and paste the link in your bio, story, or direct message."); break;
+            }
+        }
+    </script>
+
+    <%- include('partials/footer') %>

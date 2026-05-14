@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: var(--embed-bg, #0f0c29);
+            color: #fff;
+            min-height: 100vh;
+            padding: 24px 16px;
+        }
+        /* ── Themes ───────────────────────────────────────────────────────── */
+        body.theme-default { --embed-bg:#0f0c29; --embed-accent1:#667eea; --embed-accent2:#764ba2; }
+        body.theme-ocean   { --embed-bg:#0d1b2a; --embed-accent1:#0093E9; --embed-accent2:#80D0C7; }
+        body.theme-sunset  { --embed-bg:#2d1b30; --embed-accent1:#f093fb; --embed-accent2:#f5576c; }
+        body.theme-forest  { --embed-bg:#0d2118; --embed-accent1:#11998e; --embed-accent2:#38ef7d; }
+        body.theme-night   { --embed-bg:#0a0a1a; --embed-accent1:#e0c3fc; --embed-accent2:#8ec5fc; }
+        body.theme-rose    { --embed-bg:#1e0d18; --embed-accent1:#f953c6; --embed-accent2:#b91d73; }
+
+        .embed-wrap { max-width: 700px; margin: 0 auto; }
+        .embed-header {
+            background: linear-gradient(135deg, var(--embed-accent1), var(--embed-accent2));
+            border-radius: 16px 16px 0 0;
+            padding: 24px 28px;
+            margin-bottom: 0;
+        }
+        .embed-header h1 { font-size: 1.4rem; font-weight: 700; color: #fff; margin-bottom: 6px; }
+        .embed-header p { color: rgba(255,255,255,0.8); font-size: 0.9rem; }
+        .embed-body {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-top: none;
+            border-radius: 0 0 16px 16px;
+            padding: 24px 28px;
+        }
+        .embed-field { margin-bottom: 20px; }
+        .embed-field input[type="text"],
+        .embed-field textarea {
+            width: 100%;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            color: #fff;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .embed-field input:focus, .embed-field textarea:focus {
+            border-color: var(--embed-accent1);
+        }
+        .embed-label {
+            display: block;
+            color: #c5c5e8;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .embed-question-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 16px;
+        }
+        .qnum {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 26px; height: 26px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--embed-accent1), var(--embed-accent2));
+            color: #fff; font-size: 0.78rem; font-weight: 700;
+            margin-right: 8px; flex-shrink: 0;
+        }
+        .form-check-input { accent-color: var(--embed-accent1); }
+        .embed-submit {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, var(--embed-accent1), var(--embed-accent2));
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: opacity 0.2s;
+        }
+        .embed-submit:hover { opacity: 0.9; }
+        .embed-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+        .embed-thankyou { text-align: center; padding: 40px 20px; }
+        .embed-thankyou .check { font-size: 3rem; color: var(--embed-accent2); }
+        .rating-wrap { display: flex; gap: 8px; }
+        .rating-wrap label { cursor: pointer; font-size: 1.5rem; color: #666; }
+        .rating-wrap input { display: none; }
+        .rating-wrap label:hover, .rating-wrap label.active { color: #fbbf24; }
+        .powered { text-align: center; margin-top: 14px; font-size: 0.75rem; color: rgba(255,255,255,0.25); }
+        .powered a { color: rgba(255,255,255,0.35); text-decoration: none; }
+    </style>
+</head>
+<body class="theme-<%= survey.theme || 'default' %>">
+
+<div class="embed-wrap">
+    <% if (typeof submitted !== 'undefined' && submitted) { %>
+    <div class="embed-header"><h1><%= survey.title %></h1></div>
+    <div class="embed-body">
+        <div class="embed-thankyou">
+            <div class="check">✅</div>
+            <h2 style="color:#fff;margin:16px 0 8px;">Thank You!</h2>
+            <p style="color:#a0a0c0;">Your response has been recorded.</p>
+        </div>
+    </div>
+    <% } else { %>
+    <div class="embed-header">
+        <h1><%= survey.title %></h1>
+        <% if (survey.description) { %><p><%= survey.description %></p><% } %>
+    </div>
+    <div class="embed-body">
+        <form action="/s/<%= survey.share_link %>/submit" method="POST" id="embedForm">
+            <!-- Respondent name -->
+            <div class="embed-field">
+                <label class="embed-label">Your Name (optional)</label>
+                <input type="text" name="respondent_name" placeholder="Enter your name">
+            </div>
+
+            <% questions.forEach(function(q, idx) { %>
+            <div class="embed-question-card">
+                <label class="embed-label">
+                    <span class="qnum"><%= idx + 1 %></span>
+                    <%= q.question_text %>
+                    <% if (q.is_required) { %><span style="color:#f55;margin-left:4px;">*</span><% } %>
+                </label>
+
+                <% if (q.question_type === 'short') { %>
+                    <input type="text" name="question_<%= q.id %>" placeholder="Your answer" <%= q.is_required ? 'required' : '' %>>
+                <% } else if (q.question_type === 'long') { %>
+                    <textarea name="question_<%= q.id %>" rows="3" placeholder="Your detailed answer" <%= q.is_required ? 'required' : '' %>></textarea>
+                <% } else if (q.question_type === 'mcq' && q.options) { %>
+                    <% q.options.forEach(function(opt, oi) { %>
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="radio" name="question_<%= q.id %>" id="eq<%= q.id %>_<%= oi %>" value="<%= opt %>">
+                        <label class="form-check-label" for="eq<%= q.id %>_<%= oi %>" style="color:#c5c5e8;"><%= opt %></label>
+                    </div>
+                    <% }); %>
+                <% } else if (q.question_type === 'checkbox' && q.options) { %>
+                    <% q.options.forEach(function(opt, oi) { %>
+                    <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" name="question_<%= q.id %>" id="ec<%= q.id %>_<%= oi %>" value="<%= opt %>">
+                        <label class="form-check-label" for="ec<%= q.id %>_<%= oi %>" style="color:#c5c5e8;"><%= opt %></label>
+                    </div>
+                    <% }); %>
+                <% } else if (q.question_type === 'rating') { %>
+                    <div class="rating-wrap mt-2">
+                        <% for (let i = 1; i <= 5; i++) { %>
+                        <label for="er<%= q.id %>_<%= i %>">
+                            <input type="radio" name="question_<%= q.id %>" id="er<%= q.id %>_<%= i %>" value="<%= i %>">
+                            <i class="bi bi-star-fill"></i>
+                        </label>
+                        <% } %>
+                    </div>
+                <% } %>
+            </div>
+            <% }); %>
+
+            <button type="submit" class="embed-submit" id="embedSubmit">
+                ✍️ Submit Response
+            </button>
+        </form>
+    </div>
+    <% } %>
+    <div class="powered">Powered by <a href="/" target="_blank">SurveyBuilder</a></div>
+</div>
+
+<script>
+document.getElementById('embedForm') && document.getElementById('embedForm').addEventListener('submit', function() {
+    const btn = document.getElementById('embedSubmit');
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+});
+// Star rating hover
+document.querySelectorAll('.rating-wrap').forEach(wrap => {
+    const labels = wrap.querySelectorAll('label');
+    labels.forEach((lbl, idx) => {
+        lbl.addEventListener('mouseenter', () => labels.forEach((l, i) => l.classList.toggle('active', i <= idx)));
+        lbl.addEventListener('mouseleave', () => {
+            const checked = wrap.querySelector('input:checked');
+            const val = checked ? parseInt(checked.value) : 0;
+            labels.forEach((l, i) => l.classList.toggle('active', i < val));
+        });
+        lbl.querySelector('input').addEventListener('change', () => {
+            const val = parseInt(lbl.querySelector('input').value);
+            labels.forEach((l, i) => l.classList.toggle('active', i < val));
+        });
+    });
+});
+</script>
+</body>
+</html>

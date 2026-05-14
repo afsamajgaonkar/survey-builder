@@ -1,0 +1,177 @@
+<%- include('partials/header') %>
+
+<section class="auth-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="email-sent-card glass-card text-center">
+
+                    <!-- Animated envelope icon -->
+                    <div class="email-icon-wrapper">
+                        <div class="email-icon-pulse"></div>
+                        <div class="email-icon">
+                            <i class="bi bi-envelope-check-fill"></i>
+                        </div>
+                    </div>
+
+                    <h1 class="email-sent-title">Check Your Inbox!</h1>
+                    <p class="email-sent-subtitle">
+                        We've sent a verification email to:
+                    </p>
+                    <div class="email-badge">
+                        <i class="bi bi-envelope me-2"></i>
+                        <strong><%= email %></strong>
+                    </div>
+
+                    <div class="email-instructions">
+                        <div class="instruction-step">
+                            <div class="step-number">1</div>
+                            <p>Open your email app and find the email from <strong>SurveyBuilder</strong></p>
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">2</div>
+                            <p>Click the <strong>"Verify My Email"</strong> button in the email</p>
+                        </div>
+                        <div class="instruction-step">
+                            <div class="step-number">3</div>
+                            <p>You'll be automatically logged in and ready to go!</p>
+                        </div>
+                    </div>
+
+                    <div class="email-note">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Didn't receive the email? Check your <strong>spam / junk folder</strong>.
+                        The link expires in <strong>24 hours</strong>.
+                    </div>
+
+                    <a href="/auth/login" class="btn btn-outline-glow w-100 mt-3">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Back to Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<%- include('partials/footer') %>
+
+<style>
+.email-sent-card {
+    padding: 50px 40px;
+    margin: 60px auto;
+    border-radius: 20px;
+}
+
+/* Animated envelope */
+.email-icon-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 28px;
+}
+.email-icon-pulse {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: rgba(102, 126, 234, 0.2);
+    animation: pulse-ring 1.8s ease-out infinite;
+}
+.email-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    color: #fff;
+    position: relative;
+    z-index: 1;
+    animation: bounce-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes pulse-ring {
+    0%   { transform: scale(0.8); opacity: 0.8; }
+    100% { transform: scale(1.8); opacity: 0; }
+}
+@keyframes bounce-in {
+    0%   { transform: scale(0.5); opacity: 0; }
+    100% { transform: scale(1);   opacity: 1; }
+}
+
+.email-sent-title {
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+}
+.email-sent-subtitle {
+    color: #a0a0c0;
+    font-size: 1rem;
+    margin-bottom: 14px;
+}
+.email-badge {
+    display: inline-block;
+    background: rgba(102, 126, 234, 0.15);
+    border: 1px solid rgba(102, 126, 234, 0.35);
+    color: #c5c5f0;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    margin-bottom: 32px;
+    word-break: break-all;
+}
+
+/* Steps */
+.email-instructions {
+    text-align: left;
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.instruction-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 14px 16px;
+}
+.step-number {
+    min-width: 30px;
+    height: 30px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #fff;
+}
+.instruction-step p {
+    margin: 0;
+    color: #b0b0d0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+.instruction-step p strong {
+    color: #fff;
+}
+
+.email-note {
+    background: rgba(255, 193, 7, 0.08);
+    border: 1px solid rgba(255, 193, 7, 0.2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: #e0c060;
+    font-size: 0.85rem;
+    text-align: left;
+    line-height: 1.5;
+}
+.email-note strong { color: #ffd54f; }
+</style>

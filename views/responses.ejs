@@ -1,0 +1,757 @@
+<%- include('partials/header') %>
+
+<section class="responses-section">
+    <div class="container-fluid px-4">
+
+        <!-- ── Page Header ────────────────────────────────────────────────── -->
+        <div class="resp-page-header mb-4">
+            <div class="resp-header-left">
+                <a href="/dashboard" class="back-btn">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <div>
+                    <h1 class="page-title mb-0">Responses</h1>
+                    <p class="resp-survey-name">
+                        <i class="bi bi-clipboard2-data me-1"></i>
+                        <%= survey.title %>
+                    </p>
+                </div>
+            </div>
+            <div class="resp-header-actions">
+                <!-- Search -->
+                <div class="resp-search-wrap">
+                    <i class="bi bi-search resp-search-icon"></i>
+                    <input type="text" id="searchInput" class="resp-search" placeholder="Search respondents...">
+                </div>
+                <!-- Share -->
+                <div class="dropdown d-inline">
+                    <button class="btn btn-outline-glow dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-share me-1"></i>Share
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><button class="dropdown-item" onclick="copyShareLink('<%= survey.share_link %>')"><i class="bi bi-link-45deg me-2"></i>Copy Link</button></li>
+                        <li><button class="dropdown-item" onclick="shareSocial('<%= survey.share_link %>', 'whatsapp')"><i class="bi bi-whatsapp me-2 text-success"></i>WhatsApp</button></li>
+                        <li><button class="dropdown-item" onclick="shareSocial('<%= survey.share_link %>', 'facebook')"><i class="bi bi-facebook me-2 text-primary"></i>Facebook</button></li>
+                        <li><button class="dropdown-item" onclick="shareSocial('<%= survey.share_link %>', 'email')"><i class="bi bi-envelope me-2 text-danger"></i>Gmail</button></li>
+                    </ul>
+                </div>
+                <a href="/analytics/survey/<%= survey.id %>" class="btn btn-outline-glow">
+                    <i class="bi bi-pie-chart me-1"></i>Analytics
+                </a>
+                <a href="/survey/<%= survey.id %>/export" class="btn btn-primary-glow">
+                    <i class="bi bi-download me-1"></i>Export CSV
+                </a>
+            </div>
+        </div>
+
+        <!-- ── Stats Bar ─────────────────────────────────────────────────── -->
+        <div class="stats-bar mb-4">
+            <div class="stat-pill" data-animate>
+                <div class="stat-pill-icon"><i class="bi bi-people-fill"></i></div>
+                <div>
+                    <div class="stat-pill-num" data-target="<%= responseCount %>">0</div>
+                    <div class="stat-pill-label">Total Responses</div>
+                </div>
+            </div>
+            <div class="stat-pill" data-animate>
+                <div class="stat-pill-icon" style="background:rgba(72,199,142,0.15);color:#48c78e;"><i class="bi bi-question-circle-fill"></i></div>
+                <div>
+                    <div class="stat-pill-num" data-target="<%= questions.length %>">0</div>
+                    <div class="stat-pill-label">Questions</div>
+                </div>
+            </div>
+            <div class="stat-pill" data-animate>
+                <div class="stat-pill-icon" style="background:rgba(255,193,7,0.15);color:#ffc107;"><i class="bi bi-clock-fill"></i></div>
+                <div>
+                    <div class="stat-pill-val">
+                        <% if (responses.length > 0) { %>
+                            <%= new Date(responses[responses.length - 1].submitted_at).toLocaleDateString() %>
+                        <% } else { %>—<% } %>
+                    </div>
+                    <div class="stat-pill-label">Latest Response</div>
+                </div>
+            </div>
+            <div class="stat-pill" data-animate>
+                <div class="stat-pill-icon" style="background:rgba(<%= survey.is_active ? '72,199,142' : '244,63,94' %>,0.15);color:<%= survey.is_active ? '#48c78e' : '#f43f5e' %>;"><i class="bi bi-<%= survey.is_active ? 'check-circle' : 'x-circle' %>-fill"></i></div>
+                <div>
+                    <div class="stat-pill-val" style="color:<%= survey.is_active ? '#48c78e' : '#f43f5e' %>;font-weight:700;">
+                        <%= survey.is_active ? 'Active' : 'Inactive' %>
+                    </div>
+                    <div class="stat-pill-label">Survey Status</div>
+                </div>
+            </div>
+        </div>
+
+        <% if (responses.length === 0) { %>
+        <!-- ── Empty State ────────────────────────────────────────────────── -->
+        <div class="glass-card empty-responses text-center py-5">
+            <div class="empty-icon mb-3"><i class="bi bi-inbox"></i></div>
+            <h3>No Responses Yet</h3>
+            <p style="color: var(--text-secondary);">Share your survey to start collecting responses.</p>
+            <button class="btn btn-primary-glow mt-2" onclick="copyShareLink('<%= survey.share_link %>')">
+                <i class="bi bi-link-45deg me-2"></i>Copy Share Link
+            </button>
+        </div>
+        <% } else { %>
+
+        <!-- ── Responses Cards Container ─────────────────────────────────────── -->
+        <div class="resp-cards-container">
+            <!-- Cards toolbar -->
+            <div class="resp-cards-toolbar">
+                <div class="resp-cards-info">
+                    <span id="visibleCount"><%= responses.length %></span> of <%= responseCount %> responses
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                    <span style="font-size:0.8rem;color:#a0a0c0;">Sort by:</span>
+                    <select id="sortSelect" class="resp-sort-select">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="name">Name A→Z</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Cards Grid -->
+            <div class="resp-cards-grid" id="cardsGrid">
+                <% responses.forEach(function(resp, idx) { %>
+                <div class="response-card"
+                    data-name="<%= (resp.respondent_name || 'anonymous').toLowerCase() %>"
+                    data-date="<%= new Date(resp.submitted_at).getTime() %>"
+                    style="animation-delay: <%= idx * 60 %>ms">
+
+                    <!-- Card Header -->
+                    <div class="card-header">
+                        <div class="respondent-info">
+                            <div class="respondent-avatar">
+                                <%= (resp.respondent_name || 'A').charAt(0).toUpperCase() %>
+                            </div>
+                            <div class="respondent-details">
+                                <span class="respondent-name"><%= resp.respondent_name || 'Anonymous' %></span>
+                                <span class="submission-date">
+                                    <i class="bi bi-calendar3 me-1"></i>
+                                    <%= new Date(resp.submitted_at).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) %>
+                                    <span class="submission-time">
+                                        <%= new Date(resp.submitted_at).toLocaleTimeString('en-US', {hour:'2-digit',minute:'2-digit'}) %>
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-actions">
+                            <form action="/responses/<%= resp.id %>/delete" method="POST"
+                                onsubmit="return confirmDelete(this)">
+                                <button type="submit" class="action-btn delete-btn" title="Delete Response">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Card Body - Questions & Answers -->
+                    <div class="card-body">
+                        <% questions.forEach(function(q, qi) { %>
+                        <div class="qa-pair">
+                            <div class="question-label">
+                                <span class="q-number"><%= qi + 1 %></span>
+                                <span class="q-text"><%= q.question_text %></span>
+                            </div>
+                            <div class="answer-value">
+                                <%
+                                const answer = resp.answers.find(a => a.question_id === q.id);
+                                if (answer) {
+                                    let val = answer.answer_value;
+                                    try {
+                                        const parsed = JSON.parse(val);
+                                        if (Array.isArray(parsed)) val = parsed.join(', ');
+                                    } catch(e) {}
+                                    if (q.question_type === 'rating') {
+                                        const rating = parseInt(val);
+                                %>
+                                <div class="rating-display">
+                                    <% for (let i = 1; i <= 5; i++) { %>
+                                    <i class="bi bi-star<%= i <= rating ? '-fill star-filled' : ' star-empty' %>"></i>
+                                    <% } %>
+                                    <span class="rating-val">(<%= val %>/5)</span>
+                                </div>
+                                <% } else { %>
+                                <p class="answer-text"><%= val || '—' %></p>
+                                <% }
+                                } else { %>
+                                <p class="answer-text no-answer">—</p>
+                                <% } %>
+                            </div>
+                        </div>
+                        <% }); %>
+                    </div>
+
+                    <!-- Card Footer -->
+                    <div class="card-footer">
+                        <span class="response-number">Response #<%= idx + 1 %></span>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+
+            <!-- No results message -->
+            <div id="noResults" class="no-results-msg" style="display:none;">
+                <i class="bi bi-search"></i>
+                <p>No responses match your search.</p>
+            </div>
+        </div>
+        <% } %>
+    </div>
+</section>
+
+<!-- ── Styles ──────────────────────────────────────────────────────────────── -->
+<style>
+/* Page Header */
+.resp-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-top: 20px;
+}
+.resp-header-left { display: flex; align-items: center; gap: 16px; }
+.back-btn {
+    width: 40px; height: 40px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 1.1rem;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+.back-btn:hover { background: rgba(102,126,234,0.2); color: #fff; border-color: #667eea; }
+.resp-survey-name { font-size: 0.85rem; color: #a0a0c0; margin: 0; }
+.resp-header-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+/* Search */
+.resp-search-wrap { position: relative; }
+.resp-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #666; font-size: 0.85rem; }
+.resp-search {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: #fff;
+    padding: 8px 14px 8px 34px;
+    font-size: 0.875rem;
+    width: 200px;
+    transition: all 0.25s;
+    outline: none;
+}
+.resp-search:focus { border-color: #667eea; width: 240px; background: rgba(102,126,234,0.08); }
+.resp-search::placeholder { color: #666; }
+
+/* Stats Bar */
+.stats-bar {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+.stat-pill {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 14px 20px;
+    flex: 1;
+    min-width: 160px;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.stat-pill.visible { opacity: 1; transform: translateY(0); }
+.stat-pill:hover { border-color: rgba(102,126,234,0.3); transform: translateY(-2px); }
+.stat-pill-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: rgba(102,126,234,0.15);
+    color: #667eea;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; flex-shrink: 0;
+}
+.stat-pill-num {
+    font-size: 1.6rem; font-weight: 800; color: #fff;
+    line-height: 1; font-variant-numeric: tabular-nums;
+}
+.stat-pill-val { font-size: 1rem; font-weight: 700; color: #fff; line-height: 1; }
+.stat-pill-label { font-size: 0.75rem; color: #888; margin-top: 2px; }
+
+/* Cards Container */
+.resp-cards-container {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    overflow: hidden;
+}
+.resp-cards-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.resp-cards-info { font-size: 0.85rem; color: #a0a0c0; }
+.resp-cards-info span { color: #fff; font-weight: 700; }
+.resp-sort-select {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    outline: none;
+}
+.resp-sort-select option { background: #1a1a2e; }
+
+/* Cards Grid */
+.resp-cards-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px;
+}
+
+@media (min-width: 768px) {
+    .resp-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1200px) {
+    .resp-cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Response Card */
+.response-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: cardSlideIn 0.4s ease forwards;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.response-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(102,126,234,0.15);
+    border-color: rgba(102,126,234,0.3);
+}
+
+@keyframes cardSlideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Card Header */
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    background: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.08));
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.respondent-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.respondent-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(102,126,234,0.3);
+}
+
+.respondent-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.respondent-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.submission-date {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.submission-time {
+    color: #666;
+    margin-left: 4px;
+}
+
+.card-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.action-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+}
+
+.delete-btn {
+    background: rgba(244,63,94,0.1);
+    color: #f43f5e;
+    border: 1px solid rgba(244,63,94,0.2);
+}
+
+.delete-btn:hover {
+    background: rgba(244,63,94,0.25);
+    transform: scale(1.1);
+}
+
+/* Card Body */
+.card-body {
+    padding: 20px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Custom scrollbar for card body */
+.card-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.card-body::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.03);
+    border-radius: 3px;
+}
+
+.card-body::-webkit-scrollbar-thumb {
+    background: rgba(102,126,234,0.3);
+    border-radius: 3px;
+}
+
+.card-body::-webkit-scrollbar-thumb:hover {
+    background: rgba(102,126,234,0.5);
+}
+
+/* Question-Answer Pair */
+.qa-pair {
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.qa-pair:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.qa-pair:first-child {
+    padding-top: 0;
+}
+
+.question-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.q-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.q-text {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #b0b0d0;
+    line-height: 1.4;
+}
+
+.answer-value {
+    margin-left: 32px;
+}
+
+.answer-text {
+    color: #e0e0f0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.no-answer {
+    color: #555;
+    font-style: italic;
+}
+
+/* Rating Display */
+.rating-display {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.star-filled {
+    color: #fbbf24;
+    font-size: 1rem;
+}
+
+.star-empty {
+    color: #333;
+    font-size: 1rem;
+}
+
+.rating-val {
+    font-size: 0.8rem;
+    color: #888;
+    margin-left: 8px;
+}
+
+/* Card Footer */
+.card-footer {
+    padding: 12px 20px;
+    background: rgba(255,255,255,0.02);
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.response-number {
+    font-size: 0.75rem;
+    color: #666;
+    font-weight: 500;
+}
+
+/* No Results */
+.no-results-msg {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+
+.no-results-msg i {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 12px;
+}
+
+.no-results-msg p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Empty state */
+.empty-responses {
+    border-radius: 16px;
+}
+
+/* Card deletion animation */
+.response-card.deleting {
+    animation: cardDelete 0.35s ease forwards;
+}
+
+@keyframes cardDelete {
+    to {
+        opacity: 0;
+        transform: scale(0.95) translateX(20px);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .resp-cards-grid {
+        padding: 12px;
+        gap: 16px;
+    }
+
+    .card-header {
+        padding: 14px 16px;
+    }
+
+    .card-body {
+        padding: 16px;
+    }
+
+    .respondent-avatar {
+        width: 38px;
+        height: 38px;
+        font-size: 0.95rem;
+    }
+
+    .respondent-name {
+        font-size: 0.9rem;
+    }
+
+    .answer-value {
+        margin-left: 0;
+        margin-top: 8px;
+    }
+
+    .question-label {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .q-number {
+        width: 20px;
+        height: 20px;
+        font-size: 0.65rem;
+    }
+}
+</style>
+
+<!-- ── Scripts ─────────────────────────────────────────────────────────────── -->
+<script>
+// Animate stat pills on load
+document.addEventListener('DOMContentLoaded', () => {
+    // Stat pill fade-in
+    document.querySelectorAll('.stat-pill[data-animate]').forEach((el, i) => {
+        setTimeout(() => el.classList.add('visible'), i * 120);
+    });
+
+    // Count-up animation
+    document.querySelectorAll('.stat-pill-num[data-target]').forEach(el => {
+        const target = parseInt(el.dataset.target);
+        if (target === 0) { el.textContent = '0'; return; }
+        let start = 0;
+        const duration = 800;
+        const step = Math.ceil(target / (duration / 16));
+        const timer = setInterval(() => {
+            start = Math.min(start + step, target);
+            el.textContent = start;
+            if (start >= target) clearInterval(timer);
+        }, 16);
+    });
+
+    // Search filter
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', filterCards);
+    }
+
+    // Sort
+    const sortSelect = document.getElementById('sortSelect');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', sortCards);
+    }
+});
+
+// Search filter
+function filterCards() {
+    const query = document.getElementById('searchInput').value.toLowerCase().trim();
+    const cards = document.querySelectorAll('#cardsGrid .response-card');
+    let visible = 0;
+
+    cards.forEach(card => {
+        const name = card.dataset.name || '';
+        const text = card.textContent.toLowerCase();
+        const match = !query || name.includes(query) || text.includes(query);
+        card.style.display = match ? '' : 'none';
+        if (match) visible++;
+    });
+
+    document.getElementById('visibleCount').textContent = visible;
+    const noResults = document.getElementById('noResults');
+    if (noResults) noResults.style.display = visible === 0 ? 'block' : 'none';
+}
+
+// Sort cards
+function sortCards() {
+    const val = document.getElementById('sortSelect').value;
+    const grid = document.getElementById('cardsGrid');
+    const cards = Array.from(grid.querySelectorAll('.response-card'));
+
+    cards.sort((a, b) => {
+        if (val === 'newest') return parseInt(b.dataset.date) - parseInt(a.dataset.date);
+        if (val === 'oldest') return parseInt(a.dataset.date) - parseInt(b.dataset.date);
+        if (val === 'name')   return (a.dataset.name || '').localeCompare(b.dataset.name || '');
+        return 0;
+    });
+
+    // Re-insert with animation
+    cards.forEach((card, i) => {
+        card.style.animation = 'none';
+        card.offsetHeight; // reflow
+        card.style.animation = `cardSlideIn 0.3s ease forwards`;
+        card.style.animationDelay = `${i * 40}ms`;
+
+        // Update response number
+        const respNum = card.querySelector('.response-number');
+        if (respNum) respNum.textContent = `Response #${i + 1}`;
+
+        grid.appendChild(card);
+    });
+}
+
+// Confirm delete with animated card removal
+function confirmDelete(form) {
+    const card = form.closest('.response-card');
+    if (!confirm('Delete this response permanently?')) return false;
+    card.classList.add('deleting');
+    setTimeout(() => form.submit(), 350);
+    return false;
+}
+
+// Share functions
+function copyShareLink(shareLink) {
+    const url = window.location.origin + '/s/' + shareLink;
+    navigator.clipboard.writeText(url).then(() => {
+        const toast = document.createElement('div');
+        toast.className = 'copy-toast';
+        toast.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Link copied!';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.classList.add('show'), 10);
+        setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 2000);
+    }).catch(() => prompt('Copy this link:', url));
+}
+
+function shareSocial(shareLink, platform) {
+    const url = encodeURIComponent(window.location.origin + '/s/' + shareLink);
+    const text = encodeURIComponent('Please fill out my survey: ');
+    switch(platform) {
+        case 'whatsapp': window.open(`https://api.whatsapp.com/send?text=${text}${url}`, '_blank'); break;
+        case 'facebook': window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank'); break;
+        case 'email': window.open(`https://mail.google.com/mail/?view=cm&fs=1&su=Please fill out my survey&body=${text}${url}`, '_blank'); break;
+        case 'instagram': copyShareLink(shareLink); alert("Link copied! Paste it on Instagram."); break;
+    }
+}
+</script>
+
+<%- include('partials/footer') %>

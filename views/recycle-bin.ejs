@@ -1,0 +1,398 @@
+<%- include('partials/header') %>
+
+    <style>
+        .recycle-bin-section {
+            padding: 2.5rem 0 4rem;
+            min-height: 80vh;
+        }
+
+        .bin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .bin-title-group h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            color: var(--text-primary, #f0f4ff);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .bin-title-group h1 i {
+            color: #ef4444;
+        }
+
+        .bin-subtitle {
+            color: var(--text-muted, #94a3b8);
+            font-size: 0.9rem;
+        }
+
+        .bin-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 1.2rem;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-primary, #f0f4ff);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.25s ease;
+        }
+
+        .bin-back-btn:hover {
+            background: rgba(255,255,255,0.12);
+            color: #fff;
+            transform: translateX(-3px);
+        }
+
+        /* Info banner */
+        .bin-info-banner {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 12px;
+            padding: 0.85rem 1.25rem;
+            margin-bottom: 1.75rem;
+            color: #fca5a5;
+            font-size: 0.875rem;
+        }
+
+        .bin-info-banner i {
+            font-size: 1.1rem;
+            color: #ef4444;
+            flex-shrink: 0;
+        }
+
+        /* Empty state */
+        .bin-empty {
+            text-align: center;
+            padding: 4rem 2rem;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.03);
+            border: 1px dashed rgba(255,255,255,0.1);
+        }
+
+        .bin-empty-icon {
+            font-size: 4rem;
+            color: rgba(255,255,255,0.15);
+            margin-bottom: 1rem;
+        }
+
+        .bin-empty h3 {
+            color: var(--text-primary, #f0f4ff);
+            margin-bottom: 0.5rem;
+        }
+
+        .bin-empty p {
+            color: var(--text-muted, #94a3b8);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Trash card */
+        .trash-card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.35rem 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .trash-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ef4444, #f97316);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .trash-card:hover {
+            border-color: rgba(239, 68, 68, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(239, 68, 68, 0.1);
+        }
+
+        .trash-card:hover::before {
+            opacity: 1;
+        }
+
+        .trash-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .trash-card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary, #f0f4ff);
+            margin: 0;
+            flex: 1;
+        }
+
+        .trash-badge {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.65rem;
+            border-radius: 20px;
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .trash-card-desc {
+            font-size: 0.82rem;
+            color: var(--text-muted, #94a3b8);
+            margin-bottom: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .trash-card-meta {
+            display: flex;
+            gap: 1.2rem;
+            font-size: 0.78rem;
+            color: var(--text-muted, #94a3b8);
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .trash-card-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .trash-card-meta i {
+            font-size: 0.82rem;
+        }
+
+        .trash-card-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        /* Restore button */
+        .btn-restore {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 1rem;
+            border-radius: 8px;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+
+        .btn-restore:hover {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: #4ade80;
+            color: #4ade80;
+            transform: translateY(-1px);
+        }
+
+        /* Permanent delete button */
+        .btn-perm-delete {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.45rem 1rem;
+            border-radius: 8px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            font-size: 0.82rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .btn-perm-delete:hover {
+            background: rgba(239, 68, 68, 0.22);
+            border-color: #ef4444;
+            color: #fca5a5;
+            transform: translateY(-1px);
+        }
+
+        /* Deleted-at timestamp highlight */
+        .deleted-at {
+            color: #f87171;
+        }
+
+        /* Bulk empty banner */
+        .bulk-empty-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1.2rem;
+        }
+
+        .btn-empty-bin {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            border-radius: 10px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .btn-empty-bin:hover {
+            background: rgba(239, 68, 68, 0.22);
+            border-color: #ef4444;
+            color: #fca5a5;
+        }
+
+        /* Recycle Bin stat card hover on dashboard */
+        .recycle-bin-card {
+            cursor: pointer;
+            display: flex;
+        }
+
+        .recycle-bin-card:hover {
+            border-color: rgba(239, 68, 68, 0.4) !important;
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.15) !important;
+        }
+
+        .recycle-bin-card .stat-card-number {
+            color: #f87171 !important;
+        }
+    </style>
+
+    <section class="recycle-bin-section">
+        <div class="container">
+
+            <!-- Header -->
+            <div class="bin-header">
+                <div class="bin-title-group">
+                    <h1><i class="bi bi-trash3-fill"></i> Recycle Bin</h1>
+                    <p class="bin-subtitle">Surveys moved here are not deleted permanently — restore or delete them below.</p>
+                </div>
+                <a href="/dashboard" class="bin-back-btn">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+
+            <!-- Flash Messages -->
+            <% if (typeof success_msg !== 'undefined' && success_msg.length > 0) { %>
+                <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i><%= success_msg %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <% } %>
+            <% if (typeof error_msg !== 'undefined' && error_msg.length > 0) { %>
+                <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+                    <i class="bi bi-exclamation-circle-fill me-2"></i><%= error_msg %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            <% } %>
+
+            <% if (trashedSurveys.length === 0) { %>
+                <!-- Empty Bin -->
+                <div class="bin-empty">
+                    <div class="bin-empty-icon"><i class="bi bi-trash3"></i></div>
+                    <h3>Recycle Bin is Empty</h3>
+                    <p>Surveys you delete from the dashboard will appear here. You can restore them or delete permanently.</p>
+                    <a href="/dashboard" class="bin-back-btn" style="display:inline-flex; justify-content:center;">
+                        <i class="bi bi-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+
+            <% } else { %>
+
+                <!-- Info Banner -->
+                <div class="bin-info-banner">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <span>Items in the Recycle Bin are hidden from your active surveys. Restore them anytime or permanently delete to free up space.</span>
+                </div>
+
+                <!-- Bulk actions -->
+                <div class="bulk-empty-bar">
+                    <form action="/surveys/empty-bin" method="POST"
+                          onsubmit="return confirm('Permanently delete ALL <%= trashedSurveys.length %> survey(s) in the bin? This cannot be undone!')">
+                        <button type="submit" class="btn-empty-bin">
+                            <i class="bi bi-trash3-fill"></i> Empty Bin (<%= trashedSurveys.length %>)
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Trashed Surveys Grid -->
+                <div class="row g-4">
+                    <% trashedSurveys.forEach(function(survey) { %>
+                        <div class="col-md-6 col-lg-4">
+                            <div class="trash-card">
+                                <div class="trash-card-top">
+                                    <h3 class="trash-card-title"><%= survey.title %></h3>
+                                    <span class="trash-badge"><i class="bi bi-trash3 me-1"></i>In Bin</span>
+                                </div>
+
+                                <p class="trash-card-desc">
+                                    <%= survey.description
+                                        ? survey.description.substring(0, 90) + (survey.description.length > 90 ? '...' : '')
+                                        : 'No description' %>
+                                </p>
+
+                                <div class="trash-card-meta">
+                                    <span><i class="bi bi-people-fill"></i><%= survey.response_count %> responses</span>
+                                    <span><i class="bi bi-calendar3"></i>Created <%= new Date(survey.created_at).toLocaleDateString() %></span>
+                                    <span class="deleted-at">
+                                        <i class="bi bi-clock-history"></i>
+                                        Deleted <%= new Date(survey.deleted_at).toLocaleDateString() %>
+                                    </span>
+                                </div>
+
+                                <div class="trash-card-actions">
+                                    <!-- Restore -->
+                                    <form action="/surveys/<%= survey.id %>/restore" method="POST" class="d-inline">
+                                        <button type="submit" class="btn-restore">
+                                            <i class="bi bi-arrow-counterclockwise"></i> Restore
+                                        </button>
+                                    </form>
+
+                                    <!-- Permanent Delete -->
+                                    <form action="/surveys/<%= survey.id %>/delete" method="POST" class="d-inline"
+                                          onsubmit="return confirm('Permanently delete \'<%= survey.title %>\'? This CANNOT be undone and all responses will be lost!')">
+                                        <button type="submit" class="btn-perm-delete">
+                                            <i class="bi bi-trash3-fill"></i> Delete Forever
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+
+            <% } %>
+
+        </div>
+    </section>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,560 @@
+<%- include('partials/header') %>
+
+<!-- Particle Canvas Background -->
+<canvas id="particleCanvas" class="particle-canvas"></canvas>
+
+<!-- ===== HERO SECTION ===== -->
+<section class="hero-section-new">
+    <div class="hero-scanline"></div>
+    <div class="hero-bg-effects">
+        <div class="hero-orb hero-orb-1"></div>
+        <div class="hero-orb hero-orb-2"></div>
+        <div class="hero-orb hero-orb-3"></div>
+        <div class="hero-grid"></div>
+        <div class="corner-accent top-left"></div>
+        <div class="corner-accent top-right"></div>
+        <div class="corner-accent bottom-left"></div>
+        <div class="corner-accent bottom-right"></div>
+    </div>
+
+    <div class="container position-relative">
+        <div class="row align-items-center hero-row">
+            <!-- Left: Text Content -->
+            <div class="col-lg-6 hero-content-col">
+                <div class="hero-eyebrow reveal-up" data-delay="0">
+                    <span class="eyebrow-dot"></span>
+                    <span>Next-Gen Survey Intelligence</span>
+                    <span class="eyebrow-pulse"></span>
+                </div>
+
+                <h1 class="hero-heading reveal-up" data-delay="100">
+                    <span class="heading-line">Collect Insights</span>
+                    <span class="heading-line typewriter-text" id="typewriterEl"></span>
+                </h1>
+
+                <p class="hero-desc reveal-up" data-delay="200">
+                    Design dynamic surveys with an AI-powered interface.  
+                    Capture real-time responses. Unlock actionable analytics —  
+                    all on a self-hosted, zero-cost platform.
+                </p>
+
+                <div class="hero-cta-group reveal-up" data-delay="300">
+                    <% if (user) { %>
+                        <a href="/surveys/new" class="btn-futuristic btn-futuristic-primary" id="heroCtaPrimary">
+                            <span class="btn-icon"><i class="bi bi-plus-circle-fill"></i></span>
+                            <span>New Survey</span>
+                            <span class="btn-glow"></span>
+                        </a>
+                        <a href="/dashboard" class="btn-futuristic btn-futuristic-outline" id="heroCtaSecondary">
+                            <span class="btn-icon"><i class="bi bi-speedometer2"></i></span>
+                            <span>Dashboard</span>
+                        </a>
+                    <% } else { %>
+                        <a href="/auth/register" class="btn-futuristic btn-futuristic-primary" id="heroCtaPrimary">
+                            <span class="btn-icon"><i class="bi bi-rocket-takeoff-fill"></i></span>
+                            <span>Get Started Free</span>
+                            <span class="btn-glow"></span>
+                        </a>
+                        <a href="/auth/login" class="btn-futuristic btn-futuristic-outline" id="heroCtaSecondary">
+                            <span class="btn-icon"><i class="bi bi-box-arrow-in-right"></i></span>
+                            <span>Sign In</span>
+                        </a>
+                    <% } %>
+                </div>
+
+                <!-- Micro-stats row -->
+                <div class="hero-microstats reveal-up" data-delay="400">
+                    <div class="microstat">
+                        <span class="microstat-val">5+</span>
+                        <span class="microstat-label">Question Types</span>
+                    </div>
+                    <div class="microstat-divider"></div>
+                    <div class="microstat">
+                        <span class="microstat-val">∞</span>
+                        <span class="microstat-label">Surveys</span>
+                    </div>
+                    <div class="microstat-divider"></div>
+                    <div class="microstat">
+                        <span class="microstat-val">100%</span>
+                        <span class="microstat-label">Your Data</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Holographic Survey UI Mock -->
+            <div class="col-lg-6 d-none d-lg-flex justify-content-center align-items-center hero-illustration-col reveal-right" data-delay="100">
+                <div class="holo-frame">
+                    <div class="holo-scanline"></div>
+                    <div class="holo-header">
+                        <div class="holo-dot red"></div>
+                        <div class="holo-dot yellow"></div>
+                        <div class="holo-dot green"></div>
+                        <span class="holo-title">survey_builder.exe</span>
+                        <div class="holo-status">
+                            <span class="status-blink"></span> LIVE
+                        </div>
+                    </div>
+                    <div class="holo-body">
+                        <!-- Simulated survey question -->
+                        <div class="holo-question-block">
+                            <div class="holo-q-label">Q1 — Multiple Choice</div>
+                            <div class="holo-q-text">How would you rate your experience?</div>
+                            <div class="holo-options">
+                                <div class="holo-option selected">
+                                    <div class="holo-radio active"></div>
+                                    <span>Excellent</span>
+                                    <div class="holo-option-bar" style="width:72%"></div>
+                                    <span class="holo-option-pct">72%</span>
+                                </div>
+                                <div class="holo-option">
+                                    <div class="holo-radio"></div>
+                                    <span>Good</span>
+                                    <div class="holo-option-bar" style="width:18%"></div>
+                                    <span class="holo-option-pct">18%</span>
+                                </div>
+                                <div class="holo-option">
+                                    <div class="holo-radio"></div>
+                                    <span>Average</span>
+                                    <div class="holo-option-bar" style="width:10%"></div>
+                                    <span class="holo-option-pct">10%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Rating stars -->
+                        <div class="holo-question-block mt-3">
+                            <div class="holo-q-label">Q2 — Rating</div>
+                            <div class="holo-q-text">Overall satisfaction score</div>
+                            <div class="holo-stars">
+                                <i class="bi bi-star-fill star-lit"></i>
+                                <i class="bi bi-star-fill star-lit"></i>
+                                <i class="bi bi-star-fill star-lit"></i>
+                                <i class="bi bi-star-fill star-lit"></i>
+                                <i class="bi bi-star-half star-half-lit"></i>
+                                <span class="holo-star-score">4.5 / 5.0</span>
+                            </div>
+                        </div>
+                        <!-- Response counter -->
+                        <div class="holo-footer">
+                            <div class="holo-responses-count">
+                                <i class="bi bi-people-fill"></i>
+                                <span id="holo-counter">0</span> responses
+                            </div>
+                            <div class="holo-live-tag">
+                                <span class="pulse-dot"></span> Collecting
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Floating chips -->
+                    <div class="holo-chip chip-top-right">
+                        <i class="bi bi-bar-chart-fill"></i> Analytics
+                    </div>
+                    <div class="holo-chip chip-bottom-left">
+                        <i class="bi bi-shield-lock-fill"></i> Secured
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator">
+        <div class="scroll-line"></div>
+        <span>Scroll</span>
+    </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section class="how-section reveal-section" id="how-it-works">
+    <div class="container">
+        <div class="section-header-new text-center mb-5">
+            <div class="section-tag">WORKFLOW</div>
+            <h2 class="section-title-new">Three Steps to Insights</h2>
+            <p class="section-desc">From idea to actionable data in minutes, not hours.</p>
+        </div>
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4 reveal-up" data-delay="0">
+                <div class="step-card">
+                    <div class="step-num">01</div>
+                    <div class="step-icon-wrap">
+                        <div class="step-icon"><i class="bi bi-pencil-square"></i></div>
+                        <div class="step-icon-ring"></div>
+                    </div>
+                    <h3>Build</h3>
+                    <p>Drag-and-drop builder with 5+ question types. MCQ, ratings, open text, checkboxes, and more.</p>
+                    <div class="step-connector"></div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal-up" data-delay="150">
+                <div class="step-card">
+                    <div class="step-num">02</div>
+                    <div class="step-icon-wrap">
+                        <div class="step-icon"><i class="bi bi-send-fill"></i></div>
+                        <div class="step-icon-ring"></div>
+                    </div>
+                    <h3>Distribute</h3>
+                    <p>One-click shareable links. No accounts needed for respondents — just share and collect.</p>
+                    <div class="step-connector"></div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal-up" data-delay="300">
+                <div class="step-card">
+                    <div class="step-num">03</div>
+                    <div class="step-icon-wrap">
+                        <div class="step-icon"><i class="bi bi-graph-up-arrow"></i></div>
+                        <div class="step-icon-ring"></div>
+                    </div>
+                    <h3>Analyze</h3>
+                    <p>Real-time dashboards and visual analytics. All data secured in PostgreSQL — yours forever.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FEATURES SECTION ===== -->
+<section class="features-section-new reveal-section" id="features">
+    <div class="features-bg-glow"></div>
+    <div class="container position-relative">
+        <div class="section-header-new text-center mb-5">
+            <div class="section-tag">CAPABILITIES</div>
+            <h2 class="section-title-new">Everything You Need</h2>
+            <p class="section-desc">Powerful tools to build, share, and understand your surveys.</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4 reveal-up" data-delay="0">
+                <div class="feat-card">
+                    <div class="feat-card-glow"></div>
+                    <div class="feat-top">
+                        <div class="feat-icon-wrap">
+                            <i class="bi bi-ui-checks-grid"></i>
+                        </div>
+                        <div class="feat-badge">Core</div>
+                    </div>
+                    <h4>Intuitive Builder</h4>
+                    <p>Dynamic form builder with support for 5+ question types including MCQ, rating scales, checkboxes, and open text.</p>
+                    <div class="feat-footer">
+                        <span class="feat-chip">MCQ</span>
+                        <span class="feat-chip">Rating</span>
+                        <span class="feat-chip">Text</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal-up" data-delay="100">
+                <div class="feat-card feat-card-accent">
+                    <div class="feat-card-glow"></div>
+                    <div class="feat-top">
+                        <div class="feat-icon-wrap">
+                            <i class="bi bi-share-fill"></i>
+                        </div>
+                        <div class="feat-badge feat-badge-accent">Popular</div>
+                    </div>
+                    <h4>Instant Sharing</h4>
+                    <p>Generate unique shareable links instantly. Distribute via email or social media — no respondent account needed.</p>
+                    <div class="feat-footer">
+                        <span class="feat-chip">Link</span>
+                        <span class="feat-chip">Email</span>
+                        <span class="feat-chip">Social</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal-up" data-delay="200">
+                <div class="feat-card">
+                    <div class="feat-card-glow"></div>
+                    <div class="feat-top">
+                        <div class="feat-icon-wrap">
+                            <i class="bi bi-bar-chart-line-fill"></i>
+                        </div>
+                        <div class="feat-badge">Live</div>
+                    </div>
+                    <h4>Real-Time Analytics</h4>
+                    <p>View collected responses the moment they arrive. Structured tables and live dashboards with visual breakdowns.</p>
+                    <div class="feat-footer">
+                        <span class="feat-chip">Live</span>
+                        <span class="feat-chip">Charts</span>
+                        <span class="feat-chip">Export</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal-up" data-delay="100">
+                <div class="feat-card">
+                    <div class="feat-card-glow"></div>
+                    <div class="feat-top">
+                        <div class="feat-icon-wrap">
+                            <i class="bi bi-shield-lock-fill"></i>
+                        </div>
+                        <div class="feat-badge">Secure</div>
+                    </div>
+                    <h4>Auth & Roles</h4>
+                    <p>Passport.js authentication with role-based access. Admin controls and user-level survey management.</p>
+                    <div class="feat-footer">
+                        <span class="feat-chip">Passport</span>
+                        <span class="feat-chip">RBAC</span>
+                        <span class="feat-chip">Sessions</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal-up" data-delay="200">
+                <div class="feat-card">
+                    <div class="feat-card-glow"></div>
+                    <div class="feat-top">
+                        <div class="feat-icon-wrap">
+                            <i class="bi bi-phone-fill"></i>
+                        </div>
+                        <div class="feat-badge">UX</div>
+                    </div>
+                    <h4>Responsive Design</h4>
+                    <p>Pixel-perfect on every screen. Bootstrap 5 + custom CSS ensure a premium experience on mobile, tablet, and desktop.</p>
+                    <div class="feat-footer">
+                        <span class="feat-chip">Mobile</span>
+                        <span class="feat-chip">Tablet</span>
+                        <span class="feat-chip">Desktop</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal-up" data-delay="300">
+                <div class="feat-card">
+                    <div class="feat-card-glow"></div>
+                    <div class="feat-top">
+                        <div class="feat-icon-wrap">
+                            <i class="bi bi-database-fill-gear"></i>
+                        </div>
+                        <div class="feat-badge">Infra</div>
+                    </div>
+                    <h4>Self-Hosted</h4>
+                    <p>PostgreSQL-backed, fully self-hosted. Own your data completely — no vendor lock-in, no hidden fees, no limits.</p>
+                    <div class="feat-footer">
+                        <span class="feat-chip">PostgreSQL</span>
+                        <span class="feat-chip">$0 Cost</span>
+                        <span class="feat-chip">Open</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== STATS SECTION ===== -->
+<section class="stats-section-new reveal-section">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-cell reveal-up" data-delay="0">
+                <div class="stat-value-new" data-count="5">0</div>
+                <div class="stat-suffix">+</div>
+                <div class="stat-label-new">Question Types</div>
+                <div class="stat-bar"></div>
+            </div>
+            <div class="stat-cell reveal-up" data-delay="100">
+                <div class="stat-value-new">∞</div>
+                <div class="stat-suffix"></div>
+                <div class="stat-label-new">Surveys Supported</div>
+                <div class="stat-bar"></div>
+            </div>
+            <div class="stat-cell reveal-up" data-delay="200">
+                <div class="stat-value-new" data-count="100">0</div>
+                <div class="stat-suffix">%</div>
+                <div class="stat-label-new">Data Ownership</div>
+                <div class="stat-bar"></div>
+            </div>
+            <div class="stat-cell reveal-up" data-delay="300">
+                <div class="stat-value-new">$0</div>
+                <div class="stat-suffix"></div>
+                <div class="stat-label-new">Cost Forever</div>
+                <div class="stat-bar"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== CTA SECTION ===== -->
+<section class="cta-section reveal-section">
+    <div class="cta-bg-orb cta-orb-1"></div>
+    <div class="cta-bg-orb cta-orb-2"></div>
+    <div class="container text-center position-relative">
+        <div class="cta-inner reveal-up" data-delay="0">
+            <div class="cta-icon-wrap">
+                <i class="bi bi-clipboard2-data-fill"></i>
+                <div class="cta-icon-ring cta-ring-1"></div>
+                <div class="cta-icon-ring cta-ring-2"></div>
+            </div>
+            <h2 class="cta-title">Ready to Build Your First Survey?</h2>
+            <p class="cta-desc">Join a smarter way of collecting insights. No subscription, no limits.</p>
+            <div class="cta-actions">
+                <% if (user) { %>
+                    <a href="/surveys/new" class="btn-futuristic btn-futuristic-primary btn-lg-futuristic">
+                        <i class="bi bi-plus-circle-fill me-2"></i>Create Survey Now
+                        <span class="btn-glow"></span>
+                    </a>
+                <% } else { %>
+                    <a href="/auth/register" class="btn-futuristic btn-futuristic-primary btn-lg-futuristic">
+                        <i class="bi bi-rocket-takeoff-fill me-2"></i>Get Started — It's Free
+                        <span class="btn-glow"></span>
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== HOME PAGE SCRIPTS ===== -->
+<script>
+// ---- Particle Canvas ----
+(function() {
+    const canvas = document.getElementById('particleCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [], mouse = { x: -9999, y: -9999 };
+
+    function resize() {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = document.querySelector('.hero-section-new').offsetHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    document.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+
+    function Particle() {
+        this.reset();
+    }
+    Particle.prototype.reset = function() {
+        this.x = Math.random() * W;
+        this.y = Math.random() * H;
+        this.r = Math.random() * 1.5 + 0.4;
+        this.vx = (Math.random() - 0.5) * 0.4;
+        this.vy = (Math.random() - 0.5) * 0.4;
+        this.alpha = Math.random() * 0.5 + 0.2;
+        this.color = Math.random() > 0.5 ? '124,58,237' : '167,139,250';
+    };
+    Particle.prototype.update = function() {
+        const dx = this.x - mouse.x, dy = this.y - mouse.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 100) {
+            this.vx += dx / dist * 0.3;
+            this.vy += dy / dist * 0.3;
+        }
+        this.vx *= 0.98; this.vy *= 0.98;
+        this.x += this.vx; this.y += this.vy;
+        if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+    };
+
+    const COUNT = Math.min(120, Math.floor(W * H / 8000));
+    for (let i = 0; i < COUNT; i++) particles.push(new Particle());
+
+    function drawLines() {
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
+                const d = Math.sqrt(dx * dx + dy * dy);
+                if (d < 110) {
+                    ctx.strokeStyle = `rgba(124,58,237,${0.12 * (1 - d / 110)})`;
+                    ctx.lineWidth = 0.6;
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+
+    function loop() {
+        ctx.clearRect(0, 0, W, H);
+        particles.forEach(p => {
+            p.update();
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${p.color},${p.alpha})`;
+            ctx.fill();
+        });
+        drawLines();
+        requestAnimationFrame(loop);
+    }
+    loop();
+})();
+
+// ---- Typewriter ----
+(function() {
+    const el = document.getElementById('typewriterEl');
+    if (!el) return;
+    const words = ['At Scale', 'Intelligently', 'In Real-Time', 'Effortlessly'];
+    let wi = 0, ci = 0, deleting = false;
+    el.style.borderRight = '2px solid #a78bfa';
+
+    function type() {
+        const word = words[wi];
+        if (!deleting) {
+            el.textContent = word.substring(0, ++ci);
+            if (ci === word.length) { deleting = true; setTimeout(type, 1400); return; }
+        } else {
+            el.textContent = word.substring(0, --ci);
+            if (ci === 0) { deleting = false; wi = (wi + 1) % words.length; }
+        }
+        setTimeout(type, deleting ? 55 : 90);
+    }
+    setTimeout(type, 700);
+})();
+
+// ---- Scroll Reveal ----
+(function() {
+    const revealEls = document.querySelectorAll('.reveal-up, .reveal-right, .reveal-section');
+    const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const delay = parseInt(entry.target.dataset.delay || 0);
+                setTimeout(() => entry.target.classList.add('revealed'), delay);
+                obs.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => obs.observe(el));
+})();
+
+// ---- Counter Animation ----
+(function() {
+    const counters = document.querySelectorAll('.stat-value-new[data-count]');
+    const obs = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const el = entry.target;
+                const target = +el.dataset.count;
+                let current = 0;
+                const step = target / 60;
+                const timer = setInterval(() => {
+                    current += step;
+                    if (current >= target) { el.textContent = target; clearInterval(timer); return; }
+                    el.textContent = Math.floor(current);
+                }, 20);
+                obs.unobserve(el);
+            }
+        });
+    }, { threshold: 0.5 });
+    counters.forEach(c => obs.observe(c));
+})();
+
+// ---- Holo Response Counter ----
+(function() {
+    const el = document.getElementById('holo-counter');
+    if (!el) return;
+    let val = 1247;
+    el.textContent = val.toLocaleString();
+    setInterval(() => {
+        val += Math.floor(Math.random() * 3);
+        el.textContent = val.toLocaleString();
+    }, 1800);
+})();
+
+// ---- Feature card hover glow position tracking ----
+document.querySelectorAll('.feat-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        const x = e.clientX - r.left, y = e.clientY - r.top;
+        card.querySelector('.feat-card-glow').style.cssText =
+            `left:${x}px;top:${y}px;opacity:1`;
+    });
+    card.addEventListener('mouseleave', () => {
+        card.querySelector('.feat-card-glow').style.opacity = '0';
+    });
+});
+</script>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,213 @@
+<%- include('partials/header') %>
+
+<style>
+    @media print {
+        /* Hide UI elements not needed for paper */
+        .navbar, footer, .d-flex.gap-2, .preview-badge, .copy-toast {
+            display: none !important;
+        }
+        
+        /* Reset backgrounds and colors for paper */
+        body, .preview-section {
+            background: white !important;
+            color: black !important;
+            min-height: auto;
+            padding: 0;
+            margin: 0;
+        }
+        
+        /* Remove glass card effects */
+        .glass-card {
+            border: none !important;
+            box-shadow: none !important;
+            background: white !important;
+            padding: 0 !important;
+        }
+
+        /* Format title */
+        .page-title {
+            color: black !important;
+            font-size: 24pt !important;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+        }
+        
+        /* Format questions */
+        .preview-question {
+            margin-bottom: 2rem !important;
+            page-break-inside: avoid; /* Prevent question cutting across pages */
+        }
+        .preview-question-label {
+            color: black !important;
+            font-weight: bold !important;
+            font-size: 14pt !important;
+        }
+
+        /* Replace inputs with printable lines/boxes */
+        input[type="text"].form-control {
+            border: none !important;
+            border-bottom: 1px dashed black !important;
+            background: transparent !important;
+            border-radius: 0 !important;
+            color: transparent !important;
+        }
+        input[type="text"].form-control::placeholder {
+            color: transparent !important;
+        }
+        textarea.form-control {
+            border: 1px dashed black !important;
+            background: transparent !important;
+            color: transparent !important;
+            min-height: 100px;
+        }
+        textarea.form-control::placeholder {
+            color: transparent !important;
+        }
+        
+        /* Fix checkboxes/radios visibility */
+        .form-check-input {
+            border: 1px solid black !important;
+            background-color: white !important;
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+        .form-check-input[type="radio"] {
+            border-radius: 50% !important;
+        }
+        .form-check-label {
+            color: black !important;
+            opacity: 1 !important;
+        }
+        
+        /* Print rating stars as empty outlines */
+        .rating-star i::before {
+            color: black !important;
+        }
+    }
+</style>
+
+    <section class="preview-section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="preview-header mb-4">
+                        <div>
+                            <h1 class="page-title">
+                                <%= survey.title %>
+                            </h1>
+                            <p class="page-subtitle">
+                                <%= survey.description || 'No description provided' %>
+                            </p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-glow" onclick="window.print()">
+                                <i class="bi bi-printer me-1"></i>Download PDF
+                            </button>
+                            <button class="btn btn-outline-glow" onclick="copyShareLink('<%= survey.share_link %>')">
+                                <i class="bi bi-link-45deg me-1"></i>Copy Link
+                            </button>
+                            <a href="/surveys/<%= survey.id %>/edit" class="btn btn-outline-glow">
+                                <i class="bi bi-pencil me-1"></i>Edit
+                            </a>
+                            <a href="/dashboard" class="btn btn-outline-glow">
+                                <i class="bi bi-arrow-left me-1"></i>Back
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-4">
+                        <div class="preview-badge mb-3">
+                            <i class="bi bi-eye-fill me-2"></i>Preview Mode — This is how your survey will appear to
+                            respondents
+                        </div>
+
+                        <% if (questions.length===0) { %>
+                            <div class="text-center py-4">
+                                <i class="bi bi-exclamation-circle" style="font-size: 2rem; opacity: 0.5;"></i>
+                                <p class="text-muted mt-2">This survey has no questions yet.</p>
+                            </div>
+                            <% } else { %>
+                                <% questions.forEach(function(q, index) { %>
+                                    <div class="preview-question mb-4">
+                                        <label class="preview-question-label">
+                                            <span class="question-number">
+                                                <%= index + 1 %>
+                                            </span>
+                                            <%= q.question_text %>
+                                                <% if (q.is_required) { %><span class="text-danger ms-1">*</span>
+                                                    <% } %>
+                                        </label>
+                                        <div class="preview-question-body">
+                                            <% if (q.question_type==='short' ) { %>
+                                                <input type="text" class="form-control" disabled
+                                                    placeholder="Short answer text">
+                                                <% } else if (q.question_type==='long' ) { %>
+                                                    <textarea class="form-control" disabled rows="3"
+                                                        placeholder="Long answer text"></textarea>
+                                                    <% } else if (q.question_type==='mcq' ) { %>
+                                                        <% if (q.options) { %>
+                                                            <% q.options.forEach(function(opt) { %>
+                                                                <div class="form-check mb-2">
+                                                                    <input class="form-check-input" type="radio"
+                                                                        disabled>
+                                                                    <label class="form-check-label">
+                                                                        <%= opt %>
+                                                                    </label>
+                                                                </div>
+                                                                <% }); %>
+                                                                    <% } %>
+                                                                        <% } else if (q.question_type==='checkbox' ) {
+                                                                            %>
+                                                                            <% if (q.options) { %>
+                                                                                <% q.options.forEach(function(opt) { %>
+                                                                                    <div class="form-check mb-2">
+                                                                                        <input class="form-check-input"
+                                                                                            type="checkbox" disabled>
+                                                                                        <label class="form-check-label">
+                                                                                            <%= opt %>
+                                                                                        </label>
+                                                                                    </div>
+                                                                                    <% }); %>
+                                                                                        <% } %>
+                                                                                            <% } else if
+                                                                                                (q.question_type==='rating'
+                                                                                                ) { %>
+                                                                                                <div
+                                                                                                    class="rating-preview">
+                                                                                                    <% for (let i=1; i
+                                                                                                        <=5; i++) { %>
+                                                                                                        <span
+                                                                                                            class="rating-star"><i
+                                                                                                                class="bi bi-star"></i></span>
+                                                                                                        <% } %>
+                                                                                                </div>
+                                                                                                <% } %>
+                                        </div>
+                                    </div>
+                                    <% }); %>
+                                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function copyShareLink(shareLink) {
+            const url = window.location.origin + '/s/' + shareLink;
+            navigator.clipboard.writeText(url).then(() => {
+                const toast = document.createElement('div');
+                toast.className = 'copy-toast';
+                toast.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Link copied!';
+                document.body.appendChild(toast);
+                setTimeout(() => toast.classList.add('show'), 10);
+                setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 2000);
+            }).catch(() => prompt('Copy this link:', url));
+        }
+    </script>
+
+    <%- include('partials/footer') %>

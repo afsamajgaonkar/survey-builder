@@ -1,0 +1,371 @@
+<%- include('partials/header') %>
+
+<!-- ===== FUTURISTIC LOGIN PAGE ===== -->
+<section class="login-page">
+
+    <!-- Animated Background -->
+    <div class="login-bg">
+        <canvas id="loginParticles"></canvas>
+        <div class="aurora aurora-1"></div>
+        <div class="aurora aurora-2"></div>
+        <div class="aurora aurora-3"></div>
+        <div class="login-grid"></div>
+
+        <!-- Floating survey-themed shapes -->
+        <div class="bg-shape shape-clipboard">
+            <i class="bi bi-clipboard2-data-fill"></i>
+        </div>
+        <div class="bg-shape shape-chart">
+            <i class="bi bi-bar-chart-fill"></i>
+        </div>
+        <div class="bg-shape shape-check">
+            <i class="bi bi-ui-checks-grid"></i>
+        </div>
+        <div class="bg-shape shape-star">
+            <i class="bi bi-star-fill"></i>
+        </div>
+    </div>
+
+    <!-- Corner accents -->
+    <div class="lp-corner lp-corner-tl"></div>
+    <div class="lp-corner lp-corner-tr"></div>
+    <div class="lp-corner lp-corner-bl"></div>
+    <div class="lp-corner lp-corner-br"></div>
+
+    <div class="container login-container">
+        <div class="row justify-content-center align-items-center" style="min-height:100vh;">
+            <div class="col-xl-10 col-lg-11">
+                <div class="login-card-wrap">
+                    <div class="login-card">
+
+                    <!-- LEFT: Animated brand panel -->
+                    <div class="login-brand-panel d-none d-lg-flex">
+                        <!-- Animated rings -->
+                        <div class="brand-ring brand-ring-1"></div>
+                        <div class="brand-ring brand-ring-2"></div>
+                        <div class="brand-ring brand-ring-3"></div>
+
+                        <div class="brand-panel-content">
+                            <!-- Holographic logo -->
+                            <div class="brand-logo-wrap">
+                                <div class="brand-logo-icon">
+                                    <i class="bi bi-clipboard2-data-fill"></i>
+                                </div>
+                                <div class="brand-logo-glow"></div>
+                            </div>
+
+                            <h2 class="brand-welcome">Welcome Back</h2>
+                            <p class="brand-sub">Your survey command center awaits. Sign in to unlock insights.</p>
+
+                            <!-- Animated feature list -->
+                            <div class="brand-features">
+                                <div class="brand-feat brand-feat-1">
+                                    <div class="brand-feat-icon">
+                                        <i class="bi bi-lightning-charge-fill"></i>
+                                    </div>
+                                    <div>
+                                        <span class="brand-feat-title">Real-Time Responses</span>
+                                        <span class="brand-feat-desc">See answers as they arrive</span>
+                                    </div>
+                                </div>
+                                <div class="brand-feat brand-feat-2">
+                                    <div class="brand-feat-icon">
+                                        <i class="bi bi-bar-chart-line-fill"></i>
+                                    </div>
+                                    <div>
+                                        <span class="brand-feat-title">Live Analytics</span>
+                                        <span class="brand-feat-desc">Visual breakdowns instantly</span>
+                                    </div>
+                                </div>
+                                <div class="brand-feat brand-feat-3">
+                                    <div class="brand-feat-icon">
+                                        <i class="bi bi-shield-lock-fill"></i>
+                                    </div>
+                                    <div>
+                                        <span class="brand-feat-title">Secure & Private</span>
+                                        <span class="brand-feat-desc">Your data stays yours</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Live stats ticker -->
+                            <div class="brand-stats-row">
+                                <div class="brand-stat">
+                                    <span class="brand-stat-val" id="loginStatResponses">1,247</span>
+                                    <span class="brand-stat-label">Responses today</span>
+                                </div>
+                                <div class="brand-stat-sep"></div>
+                                <div class="brand-stat">
+                                    <span class="brand-stat-val">∞</span>
+                                    <span class="brand-stat-label">Surveys</span>
+                                </div>
+                                <div class="brand-stat-sep"></div>
+                                <div class="brand-stat">
+                                    <span class="brand-stat-val">$0</span>
+                                    <span class="brand-stat-label">Cost</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Form -->
+                    <div class="login-form-panel">
+                        <div class="login-form-inner">
+
+                            <!-- Mobile logo -->
+                            <div class="login-mobile-logo d-flex d-lg-none">
+                                <div class="mobile-logo-icon">
+                                    <i class="bi bi-clipboard2-data-fill"></i>
+                                </div>
+                                <span>SurveyBuilder</span>
+                            </div>
+
+                            <!-- Header -->
+                            <div class="login-form-header">
+                                <div class="login-tag">
+                                    <span class="login-tag-dot"></span>
+                                    Secure Login
+                                </div>
+                                <h1 class="login-title">Log In</h1>
+                                <p class="login-desc">Enter your credentials to access your dashboard</p>
+                            </div>
+
+                            <!-- Errors -->
+                            <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+                                <% errors.forEach(function(err) { %>
+                                    <div class="login-alert">
+                                        <i class="bi bi-exclamation-triangle-fill"></i>
+                                        <%= err.msg %>
+                                    </div>
+                                <% }); %>
+                            <% } %>
+
+                            <!-- Form -->
+                            <form action="/auth/login" method="POST" id="loginForm" autocomplete="on">
+                                <input type="hidden" name="isAdminLogin" id="isAdminLogin" value="false" />
+
+                                <div class="lf-group" id="emailGroup">
+                                    <label class="lf-label" for="email">
+                                        <i class="bi bi-envelope-fill"></i>
+                                        Email Address
+                                    </label>
+                                    <div class="lf-input-wrap">
+                                        <input
+                                            type="email"
+                                            class="lf-input"
+                                            id="email"
+                                            name="email"
+                                            placeholder="you@example.com"
+                                            required
+                                            autocomplete="email"
+                                        />
+                                        <div class="lf-input-border"></div>
+                                        <div class="lf-input-glow"></div>
+                                    </div>
+                                </div>
+
+                                <div class="lf-group" id="passwordGroup">
+                                    <label class="lf-label" for="password">
+                                        <i class="bi bi-lock-fill"></i>
+                                        Password
+                                    </label>
+                                    <div class="lf-input-wrap">
+                                        <input
+                                            type="password"
+                                            class="lf-input"
+                                            id="password"
+                                            name="password"
+                                            placeholder="••••••••"
+                                            required
+                                            autocomplete="current-password"
+                                        />
+                                        <button type="button" class="lf-pwd-toggle" id="pwdToggle" aria-label="Toggle password">
+                                            <i class="bi bi-eye-fill" id="pwdEyeIcon"></i>
+                                        </button>
+                                        <div class="lf-input-border"></div>
+                                        <div class="lf-input-glow"></div>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="login-submit-btn w-100" id="loginSubmit">
+                                    <span class="lsb-content">
+                                        <i class="bi bi-box-arrow-in-right"></i>
+                                        <span>Log In</span>
+                                    </span>
+                                    <span class="lsb-shimmer"></span>
+                                    <span class="lsb-loading" id="lsbLoading" style="display:none">
+                                        <span class="lsb-spinner"></span>
+                                        Logging in…
+                                    </span>
+                                </button>
+                            </form>
+
+                            <div style="text-align: right; margin-top: 15px; margin-bottom: 5px;">
+                                <a href="/auth/forgot-password" style="color: var(--neon-blue, #00f3ff); text-decoration: none; font-size: 0.9rem; transition: text-shadow 0.3s;" onmouseover="this.style.textShadow='0 0 10px #00f3ff'" onmouseout="this.style.textShadow='none'">Forgot Password?</a>
+                            </div>
+
+                            <!-- Divider -->
+                            <div class="lf-divider">
+                                <span>Don't have an account?</span>
+                            </div>
+
+                            <!-- Register link -->
+                            <a href="/auth/register" class="login-register-btn" id="loginRegisterBtn">
+                                <i class="bi bi-person-plus-fill me-2"></i>
+                                Create Free Account
+                                <span class="lrb-arrow"><i class="bi bi-arrow-right"></i></span>
+                            </a>
+
+                            <!-- Back home -->
+                            <div class="login-back-link">
+                                <a href="/home" id="loginBackHome">
+                                    <i class="bi bi-house-fill me-1"></i> Back to Home
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<%- include('partials/footer') %>
+
+<!-- ===== LOGIN PAGE SCRIPTS ===== -->
+<script>
+// ---- Particle Canvas ----
+(function () {
+    const canvas = document.getElementById('loginParticles');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
+
+    function resize() {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const COLORS = ['124,58,237', '167,139,250', '59,130,246', '16,185,129', '245,158,11'];
+
+    function Particle() { this.reset(); }
+    Particle.prototype.reset = function () {
+        this.x  = Math.random() * W;
+        this.y  = Math.random() * H;
+        this.r  = Math.random() * 2 + 0.5;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.alpha = Math.random() * 0.5 + 0.15;
+        this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+        this.pulse = Math.random() * Math.PI * 2;
+    };
+    Particle.prototype.update = function () {
+        this.x += this.vx; this.y += this.vy;
+        this.pulse += 0.04;
+        const a = this.alpha * (0.7 + 0.3 * Math.sin(this.pulse));
+        if (this.x < 0 || this.x > W || this.y < 0 || this.y > H) this.reset();
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${this.color},${a})`;
+        ctx.fill();
+    };
+
+    const cnt = Math.min(150, Math.floor(W * H / 6000));
+    for (let i = 0; i < cnt; i++) particles.push(new Particle());
+
+    // Draw connection lines
+    function drawLines() {
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const dx = particles[i].x - particles[j].x;
+                const dy = particles[i].y - particles[j].y;
+                const d = Math.sqrt(dx * dx + dy * dy);
+                if (d < 120) {
+                    ctx.strokeStyle = `rgba(124,58,237,${0.1 * (1 - d / 120)})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.beginPath();
+                    ctx.moveTo(particles[i].x, particles[i].y);
+                    ctx.lineTo(particles[j].x, particles[j].y);
+                    ctx.stroke();
+                }
+            }
+        }
+    }
+
+    function loop() {
+        ctx.clearRect(0, 0, W, H);
+        particles.forEach(p => p.update());
+        drawLines();
+        requestAnimationFrame(loop);
+    }
+    loop();
+})();
+
+// ---- Password toggle ----
+(function () {
+    const btn = document.getElementById('pwdToggle');
+    const input = document.getElementById('password');
+    const icon = document.getElementById('pwdEyeIcon');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+        const isPass = input.type === 'password';
+        input.type = isPass ? 'text' : 'password';
+        icon.className = isPass ? 'bi bi-eye-slash-fill' : 'bi bi-eye-fill';
+    });
+})();
+
+// ---- Form submit loading state ----
+(function () {
+    const form = document.getElementById('loginForm');
+    if (!form) return;
+    form.addEventListener('submit', (e) => {
+        const btn = document.getElementById('loginSubmit');
+        if (btn) {
+            const content = btn.querySelector('.lsb-content');
+            const loading = btn.querySelector('.lsb-loading');
+            if (content) content.style.display = 'none';
+            if (loading) loading.style.display = 'flex';
+            btn.style.pointerEvents = 'none';
+            
+            // Default to non-admin login as admin button is removed
+            document.getElementById('isAdminLogin').value = 'false';
+        }
+    });
+})();
+
+// ---- Input focus effects ----
+document.querySelectorAll('.lf-input').forEach(input => {
+    const wrap = input.closest('.lf-input-wrap');
+    const group = input.closest('.lf-group');
+    input.addEventListener('focus', () => {
+        wrap && wrap.classList.add('focused');
+        group && group.classList.add('active');
+    });
+    input.addEventListener('blur', () => {
+        wrap && wrap.classList.remove('focused');
+        if (!input.value) group && group.classList.remove('active');
+    });
+    if (input.value) group && group.classList.add('active');
+});
+
+// ---- Live stat ticker ----
+(function () {
+    const el = document.getElementById('loginStatResponses');
+    if (!el) return;
+    let v = 1247;
+    el.textContent = v.toLocaleString();
+    setInterval(() => {
+        v += Math.floor(Math.random() * 3);
+        el.textContent = v.toLocaleString();
+    }, 2200);
+})();
+
+// ---- Brand feature stagger ----
+document.querySelectorAll('.brand-feat').forEach((el, i) => {
+    el.style.animationDelay = (i * 200 + 400) + 'ms';
+});
+</script>
