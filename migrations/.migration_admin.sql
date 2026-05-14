@@ -1,3 +1,6 @@
+-- ! DEPRECATED !
+-- everything is now handled by `schema.sql`. this script should not be ran anymore.
+
 -- =============================================
 -- Admin Management System - Migration
 -- Run this against your PostgreSQL database

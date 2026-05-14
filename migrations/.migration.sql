@@ -1,3 +1,6 @@
+-- ! DEPRECATED !
+-- everything is now handled by `schema.sql`. this script should not be ran anymore.
+
 -- Add expiry_date to surveys
 ALTER TABLE surveys ADD COLUMN IF NOT EXISTS expiry_date TIMESTAMP;
 
