@@ -28,6 +28,7 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
-    "docx": "^9.6.1"
+    "docx": "^9.6.1",
+    "node-pg-migrate": "^8.0.4"
   }
 }
