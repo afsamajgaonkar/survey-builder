@@ -24,7 +24,6 @@
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",
     "pg": "^8.20.0",
-    "qrcode": "^1.5.4",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
